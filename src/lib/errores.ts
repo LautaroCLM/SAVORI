@@ -22,6 +22,10 @@ export function mensajeDeError(error: unknown): string {
   const mensaje =
     error && typeof error === 'object' && 'message' in error ? String((error as { message: unknown }).message) : ''
   if (MENSAJES[mensaje]) return MENSAJES[mensaje]
+  const codigo = error && typeof error === 'object' && 'code' in error ? String((error as { code: unknown }).code) : ''
+  if (codigo === '23503') return 'No se puede eliminar o guardar: está en uso por otros datos (por ejemplo, productos o pedidos asociados).'
+  if (codigo === '23505') return 'Ya existe un registro con ese valor (por ejemplo, un número de mesa repetido).'
+  if (codigo === '23514') return 'Algún valor no es válido. Revisá los campos.'
   if (mensaje.includes('Failed to fetch')) return 'No se pudo conectar con el servidor.'
   if (mensaje.includes('row-level security') || mensaje.includes('permission denied')) {
     return 'No tenés permisos para esta acción.'

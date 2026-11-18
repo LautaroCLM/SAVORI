@@ -42,7 +42,7 @@ export function DashboardLayout() {
   return (
     <div className="flex min-h-dvh flex-col md:flex-row">
       {/* Sidebar (escritorio) */}
-      <aside className="hidden w-60 shrink-0 flex-col bg-stone-900 md:flex">
+      <aside className="hidden w-60 shrink-0 flex-col bg-stone-900 md:flex print:hidden!">
         <div className="border-b border-stone-800 px-5 pt-5 pb-4">
           <Logo tema="oscuro" className="mb-5 h-7" />
           <p className="truncate text-base font-bold text-white">{usuario.restaurante_nombre}</p>
@@ -67,7 +67,7 @@ export function DashboardLayout() {
       </aside>
 
       {/* Barra superior (móvil) */}
-      <header className="bg-stone-900 md:hidden">
+      <header className="bg-stone-900 md:hidden print:hidden">
         <div className="flex items-center justify-between px-4 pt-3">
           <div className="flex min-w-0 items-center gap-3">
             <Logo variante="simbolo" tema="oscuro" className="h-8 shrink-0" />
@@ -89,7 +89,7 @@ export function DashboardLayout() {
 
       <div className="flex min-w-0 flex-1 flex-col">
         <OfflineBanner />
-        <main className="flex-1 p-4 md:p-8">
+        <main className="flex-1 p-4 md:p-8 print:p-0">
           <Outlet />
         </main>
       </div>

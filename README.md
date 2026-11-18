@@ -3,7 +3,7 @@
 Multi-restaurante (multi-tenant) sobre **Supabase**, con frontend **React + Vite + TypeScript + Tailwind**.
 Interfaz en español (Argentina), moneda ARS.
 
-> **Estado:** Fase 1 lista (scaffold, base de datos, auth, layout, carta pública de solo lectura).
+> **Estado:** Fase 1 lista (scaffold, base de datos, auth, layout, onboarding) y Fase 2 parcial: ABM de carta (categorías y productos), salones y mesas, y QR imprimible por mesa. Falta la subida de imágenes a Cloudflare R2.
 
 ---
 

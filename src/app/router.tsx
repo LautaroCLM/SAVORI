@@ -15,6 +15,7 @@ const rutasDashboard: RouteObject[] = [
     element: <RequireRol roles={['admin', 'mozo']} />,
     children: [
       { path: 'mesas', lazy: async () => ({ Component: (await import('@/features/mesas/MesasPage')).MesasPage }) },
+      { path: 'mesas/qr', lazy: async () => ({ Component: (await import('@/features/mesas/QrImpresionPage')).QrImpresionPage }) },
       { path: 'pedidos', lazy: async () => ({ Component: (await import('@/features/pedidos/PedidosPage')).PedidosPage }) },
     ],
   },
