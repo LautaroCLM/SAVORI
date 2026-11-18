@@ -4,6 +4,7 @@ import { useMutation } from '@tanstack/react-query'
 import { iniciarSesion } from '@/services/auth'
 import { mensajeDeError } from '@/lib/errores'
 import { Boton, Campo, PantallaCargando } from '@/components/ui'
+import { Logo } from '@/components/Logo'
 import { OfflineBanner } from '@/components/OfflineBanner'
 import { useAuth } from './AuthProvider'
 
@@ -35,8 +36,8 @@ export function LoginPage() {
       <main className="flex min-h-dvh items-center justify-center bg-stone-100 p-4">
         <div className="w-full max-w-sm">
           <div className="mb-8 text-center">
-            <img src="/favicon.svg" alt="" className="mx-auto size-12" />
-            <h1 className="mt-4 text-2xl font-bold text-stone-900">Ingresá a tu restaurante</h1>
+            <Logo className="mx-auto h-11" />
+            <h1 className="mt-6 text-2xl font-bold text-stone-900">Ingresá a tu restaurante</h1>
             <p className="mt-1 text-sm text-stone-500">Usá el email y la contraseña que te dieron.</p>
           </div>
 

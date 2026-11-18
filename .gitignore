@@ -31,3 +31,7 @@ dist-ssr
 supabase/.branches
 supabase/.temp
 .env.scripts.localdev
+
+# Renders temporales de la marca
+brand/_src/renders/
+brand/_src/fav/

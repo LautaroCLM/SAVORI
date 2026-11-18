@@ -1,0 +1,105 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="1600" height="984" viewBox="0 0 1600 984"><defs><filter id="grey"><feColorMatrix type="saturate" values="0"/></filter></defs><rect width="1600" height="984" fill="#f7f7f4"/><text x="60" y="78" font-family="system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif" font-size="40" font-weight="700" fill="#161616">Logo concepts</text><text x="60" y="116" font-family="system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif" font-size="20" fill="#6b6b6b">Concepts for review — pick a direction (or tell me what you like in each).</text><rect x="60" y="150" width="474.667" height="774" rx="18" fill="#fff" stroke="#161616" stroke-width="2"/><g filter="url(#grey)"><svg xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Savori — Giro" viewBox="0 0 256 256" x="90" y="190" width="414.667" height="300" preserveAspectRatio="xMidYMid meet">
+<title>Savori — Giro</title>
+<path d="M22 122V22A100 100 0 0 1 122 122Z" fill="#FF5B14"/>
+<path d="M134 22H234A100 100 0 0 1 134 122Z" fill="#FF5B14"/>
+<path d="M234 134V234A100 100 0 0 1 134 134Z" fill="#FF5B14"/>
+<path d="M122 234H22A100 100 0 0 1 122 134Z" fill="#FFC7AD"/>
+</svg>
+</g><g filter="url(#grey)"><svg xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Savori — Giro" viewBox="0 0 886 256" x="90" y="514" width="414.667" height="120" preserveAspectRatio="xMidYMid meet">
+<title>Savori — Giro</title>
+<path d="M22 122V22A100 100 0 0 1 122 122Z" fill="#FF5B14"/>
+<path d="M134 22H234A100 100 0 0 1 134 122Z" fill="#FF5B14"/>
+<path d="M234 134V234A100 100 0 0 1 134 134Z" fill="#FF5B14"/>
+<path d="M122 234H22A100 100 0 0 1 122 134Z" fill="#FFC7AD"/>
+<g transform="translate(312 73) scale(1.1)" fill="none" stroke="#1B1613" stroke-width="18">
+<path transform="translate(-11 0)" d="M80 29.5A30 20.5 0 1 0 50 50A30 20.5 0 1 1 20 70.5" stroke-linecap="round" stroke-linejoin="round"/>
+<path transform="translate(92 0)" d="M91 0V100" stroke-linecap="butt"/><circle transform="translate(92 0)" cx="50" cy="50" r="41"/>
+<path transform="translate(200 0)" d="M9 9L50 91L91 9" stroke-linecap="round" stroke-linejoin="round"/>
+<path transform="translate(308 0)" d="M50 9A41 41 0 1 0 50 91A41 41 0 1 0 50 9" stroke-linecap="round" stroke-linejoin="round"/>
+<path transform="translate(424 0)" d="M9 9V91M9 50A41 41 0 0 1 50 9" stroke-linecap="round" stroke-linejoin="round"/>
+<path transform="translate(497 0)" d="M9 9V91" stroke-linecap="round"/><circle transform="translate(497 0)" cx="9" cy="-27" r="11" fill="#FF5B14" stroke="none"/>
+</g>
+</svg>
+</g><g filter="url(#grey)"><svg xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Savori — Giro" viewBox="0 0 256 256" x="90" y="660" width="64" height="64" preserveAspectRatio="xMidYMid meet">
+<title>Savori — Giro</title>
+<path d="M22 122V22A100 100 0 0 1 122 122Z" fill="#FF5B14"/>
+<path d="M134 22H234A100 100 0 0 1 134 122Z" fill="#FF5B14"/>
+<path d="M234 134V234A100 100 0 0 1 134 134Z" fill="#FF5B14"/>
+<path d="M122 234H22A100 100 0 0 1 122 134Z" fill="#FFC7AD"/>
+</svg>
+</g><text x="122" y="744" font-family="system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif" font-size="12" fill="#8a8a8a" text-anchor="middle">64px</text><g filter="url(#grey)"><svg xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Savori — Giro" viewBox="0 0 256 256" x="180" y="692" width="32" height="32" preserveAspectRatio="xMidYMid meet">
+<title>Savori — Giro</title>
+<path d="M22 122V22A100 100 0 0 1 122 122Z" fill="#FF5B14"/>
+<path d="M134 22H234A100 100 0 0 1 134 122Z" fill="#FF5B14"/>
+<path d="M234 134V234A100 100 0 0 1 134 134Z" fill="#FF5B14"/>
+<path d="M122 234H22A100 100 0 0 1 122 134Z" fill="#FFC7AD"/>
+</svg>
+</g><text x="196" y="744" font-family="system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif" font-size="12" fill="#8a8a8a" text-anchor="middle">32px</text><g filter="url(#grey)"><svg xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Savori — Giro" viewBox="0 0 256 256" x="238" y="708" width="16" height="16" preserveAspectRatio="xMidYMid meet">
+<title>Savori — Giro</title>
+<path d="M22 122V22A100 100 0 0 1 122 122Z" fill="#FF5B14"/>
+<path d="M134 22H234A100 100 0 0 1 134 122Z" fill="#FF5B14"/>
+<path d="M234 134V234A100 100 0 0 1 134 134Z" fill="#FF5B14"/>
+<path d="M122 234H22A100 100 0 0 1 122 134Z" fill="#FFC7AD"/>
+</svg>
+</g><text x="246" y="744" font-family="system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif" font-size="12" fill="#8a8a8a" text-anchor="middle">16px</text><text x="90.0" y="780" font-family="system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif" font-size="26" font-weight="700" fill="#161616">A · Giro</text><text x="90.0" y="808" font-family="system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif" font-size="15" font-weight="700" fill="#161616" letter-spacing="1.5">RECOMMENDED</text><text x="90.0" y="842" font-family="system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif" font-size="19" fill="#555">Cuatro cuartos de disco en molinete: las</text><text x="90.0" y="868" font-family="system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif" font-size="19" fill="#555">estaciones del restaurante girando</text><text x="90.0" y="894" font-family="system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif" font-size="19" fill="#555">coordinadas</text><rect x="562.667" y="150" width="474.667" height="774" rx="18" fill="#fff" stroke="#e4e4e0" stroke-width="1"/><g filter="url(#grey)"><svg xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Savori — Ruta" viewBox="0 0 256 256" x="592.667" y="190" width="414.667" height="300" preserveAspectRatio="xMidYMid meet">
+<title>Savori — Ruta</title>
+<path d="M190 84A62 62 0 1 0 128 146A26 26 0 1 1 117.01 195.56A18 18 0 0 0 101.8 228.19A62 62 0 1 0 128 110A26 26 0 1 1 154 84A18 18 0 0 0 190 84Z" fill="#FF5B14"/>
+<circle cx="84" cy="172" r="18" fill="#1B1613"/>
+</svg>
+</g><g filter="url(#grey)"><svg xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Savori — Ruta" viewBox="0 0 886 256" x="592.667" y="514" width="414.667" height="120" preserveAspectRatio="xMidYMid meet">
+<title>Savori — Ruta</title>
+<path d="M190 84A62 62 0 1 0 128 146A26 26 0 1 1 117.01 195.56A18 18 0 0 0 101.8 228.19A62 62 0 1 0 128 110A26 26 0 1 1 154 84A18 18 0 0 0 190 84Z" fill="#FF5B14"/>
+<circle cx="84" cy="172" r="18" fill="#1B1613"/>
+<g transform="translate(312 73) scale(1.1)" fill="none" stroke="#1B1613" stroke-width="18">
+<path transform="translate(-11 0)" d="M80 29.5A30 20.5 0 1 0 50 50A30 20.5 0 1 1 20 70.5" stroke-linecap="round" stroke-linejoin="round"/>
+<path transform="translate(92 0)" d="M91 0V100" stroke-linecap="butt"/><circle transform="translate(92 0)" cx="50" cy="50" r="41"/>
+<path transform="translate(200 0)" d="M9 9L50 91L91 9" stroke-linecap="round" stroke-linejoin="round"/>
+<path transform="translate(308 0)" d="M50 9A41 41 0 1 0 50 91A41 41 0 1 0 50 9" stroke-linecap="round" stroke-linejoin="round"/>
+<path transform="translate(424 0)" d="M9 9V91M9 50A41 41 0 0 1 50 9" stroke-linecap="round" stroke-linejoin="round"/>
+<path transform="translate(497 0)" d="M9 9V91" stroke-linecap="round"/><circle transform="translate(497 0)" cx="9" cy="-27" r="11" fill="#FF5B14" stroke="none"/>
+</g>
+</svg>
+</g><g filter="url(#grey)"><svg xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Savori — Ruta" viewBox="0 0 256 256" x="592.667" y="660" width="64" height="64" preserveAspectRatio="xMidYMid meet">
+<title>Savori — Ruta</title>
+<path d="M190 84A62 62 0 1 0 128 146A26 26 0 1 1 117.01 195.56A18 18 0 0 0 101.8 228.19A62 62 0 1 0 128 110A26 26 0 1 1 154 84A18 18 0 0 0 190 84Z" fill="#FF5B14"/>
+<circle cx="84" cy="172" r="18" fill="#1B1613"/>
+</svg>
+</g><text x="624.667" y="744" font-family="system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif" font-size="12" fill="#8a8a8a" text-anchor="middle">64px</text><g filter="url(#grey)"><svg xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Savori — Ruta" viewBox="0 0 256 256" x="682.667" y="692" width="32" height="32" preserveAspectRatio="xMidYMid meet">
+<title>Savori — Ruta</title>
+<path d="M190 84A62 62 0 1 0 128 146A26 26 0 1 1 117.01 195.56A18 18 0 0 0 101.8 228.19A62 62 0 1 0 128 110A26 26 0 1 1 154 84A18 18 0 0 0 190 84Z" fill="#FF5B14"/>
+<circle cx="84" cy="172" r="18" fill="#1B1613"/>
+</svg>
+</g><text x="698.667" y="744" font-family="system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif" font-size="12" fill="#8a8a8a" text-anchor="middle">32px</text><g filter="url(#grey)"><svg xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Savori — Ruta" viewBox="0 0 256 256" x="740.667" y="708" width="16" height="16" preserveAspectRatio="xMidYMid meet">
+<title>Savori — Ruta</title>
+<path d="M190 84A62 62 0 1 0 128 146A26 26 0 1 1 117.01 195.56A18 18 0 0 0 101.8 228.19A62 62 0 1 0 128 110A26 26 0 1 1 154 84A18 18 0 0 0 190 84Z" fill="#FF5B14"/>
+<circle cx="84" cy="172" r="18" fill="#1B1613"/>
+</svg>
+</g><text x="748.667" y="744" font-family="system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif" font-size="12" fill="#8a8a8a" text-anchor="middle">16px</text><text x="592.6666666666667" y="780" font-family="system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif" font-size="26" font-weight="700" fill="#161616">B · Ruta</text><text x="592.6666666666667" y="814" font-family="system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif" font-size="19" fill="#555">Una S de un solo trazo que sale de un</text><text x="592.6666666666667" y="840" font-family="system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif" font-size="19" fill="#555">punto: el pedido recorriendo el servicio</text><rect x="1065.33" y="150" width="474.667" height="774" rx="18" fill="#fff" stroke="#e4e4e0" stroke-width="1"/><g filter="url(#grey)"><svg xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Savori — Plano" viewBox="0 0 256 256" x="1095.33" y="190" width="414.667" height="300" preserveAspectRatio="xMidYMid meet">
+<title>Savori — Plano</title>
+<path fill-rule="evenodd" d="M60 30H130A30 30 0 0 1 160 60V130A30 30 0 0 1 130 160H60A30 30 0 0 1 30 130V60A30 30 0 0 1 60 30ZM94 160A66 66 0 1 0 226 160A66 66 0 1 0 94 160Z" fill="#FF5B14"/>
+</svg>
+</g><g filter="url(#grey)"><svg xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Savori — Plano" viewBox="0 0 886 256" x="1095.33" y="514" width="414.667" height="120" preserveAspectRatio="xMidYMid meet">
+<title>Savori — Plano</title>
+<path fill-rule="evenodd" d="M60 30H130A30 30 0 0 1 160 60V130A30 30 0 0 1 130 160H60A30 30 0 0 1 30 130V60A30 30 0 0 1 60 30ZM94 160A66 66 0 1 0 226 160A66 66 0 1 0 94 160Z" fill="#FF5B14"/>
+<g transform="translate(312 73) scale(1.1)" fill="none" stroke="#1B1613" stroke-width="18">
+<path transform="translate(-11 0)" d="M80 29.5A30 20.5 0 1 0 50 50A30 20.5 0 1 1 20 70.5" stroke-linecap="round" stroke-linejoin="round"/>
+<path transform="translate(92 0)" d="M91 0V100" stroke-linecap="butt"/><circle transform="translate(92 0)" cx="50" cy="50" r="41"/>
+<path transform="translate(200 0)" d="M9 9L50 91L91 9" stroke-linecap="round" stroke-linejoin="round"/>
+<path transform="translate(308 0)" d="M50 9A41 41 0 1 0 50 91A41 41 0 1 0 50 9" stroke-linecap="round" stroke-linejoin="round"/>
+<path transform="translate(424 0)" d="M9 9V91M9 50A41 41 0 0 1 50 9" stroke-linecap="round" stroke-linejoin="round"/>
+<path transform="translate(497 0)" d="M9 9V91" stroke-linecap="round"/><circle transform="translate(497 0)" cx="9" cy="-27" r="11" fill="#FF5B14" stroke="none"/>
+</g>
+</svg>
+</g><g filter="url(#grey)"><svg xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Savori — Plano" viewBox="0 0 256 256" x="1095.33" y="660" width="64" height="64" preserveAspectRatio="xMidYMid meet">
+<title>Savori — Plano</title>
+<path fill-rule="evenodd" d="M60 30H130A30 30 0 0 1 160 60V130A30 30 0 0 1 130 160H60A30 30 0 0 1 30 130V60A30 30 0 0 1 60 30ZM94 160A66 66 0 1 0 226 160A66 66 0 1 0 94 160Z" fill="#FF5B14"/>
+</svg>
+</g><text x="1127.33" y="744" font-family="system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif" font-size="12" fill="#8a8a8a" text-anchor="middle">64px</text><g filter="url(#grey)"><svg xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Savori — Plano" viewBox="0 0 256 256" x="1185.33" y="692" width="32" height="32" preserveAspectRatio="xMidYMid meet">
+<title>Savori — Plano</title>
+<path fill-rule="evenodd" d="M60 30H130A30 30 0 0 1 160 60V130A30 30 0 0 1 130 160H60A30 30 0 0 1 30 130V60A30 30 0 0 1 60 30ZM94 160A66 66 0 1 0 226 160A66 66 0 1 0 94 160Z" fill="#FF5B14"/>
+</svg>
+</g><text x="1201.33" y="744" font-family="system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif" font-size="12" fill="#8a8a8a" text-anchor="middle">32px</text><g filter="url(#grey)"><svg xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Savori — Plano" viewBox="0 0 256 256" x="1243.33" y="708" width="16" height="16" preserveAspectRatio="xMidYMid meet">
+<title>Savori — Plano</title>
+<path fill-rule="evenodd" d="M60 30H130A30 30 0 0 1 160 60V130A30 30 0 0 1 130 160H60A30 30 0 0 1 30 130V60A30 30 0 0 1 60 30ZM94 160A66 66 0 1 0 226 160A66 66 0 1 0 94 160Z" fill="#FF5B14"/>
+</svg>
+</g><text x="1251.33" y="744" font-family="system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif" font-size="12" fill="#8a8a8a" text-anchor="middle">16px</text><text x="1095.3333333333335" y="780" font-family="system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif" font-size="26" font-weight="700" fill="#161616">C · Plano</text><text x="1095.3333333333335" y="814" font-family="system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif" font-size="19" fill="#555">El plano del salón mordido por una mesa:</text><text x="1095.3333333333335" y="840" font-family="system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif" font-size="19" fill="#555">orden y operación en una sola forma</text></svg>

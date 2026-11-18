@@ -140,6 +140,20 @@ Con `activo = false` sus usuarios ven "Cuenta suspendida", la RLS les bloquea to
 
 ---
 
+## Identidad visual
+
+Marca **Savori** (concepto *Ruta*). Todo el kit está en [`brand/`](brand/):
+
+- `brand/BRAND.md`: mini manual (uso, paleta, tipografía, espacio de seguridad, qué no hacer) · `brand/manual.png`: lámina visual.
+- `brand/svg/`: logotipo horizontal y vertical, isotipo y wordmark en versiones clara, oscura (`-dark`), negra, blanca y naranja.
+- `brand/web/`: favicon, icono de app y set PWA (se copian a `public/`).
+- `src/components/Logo.tsx`: único punto de uso en la app (importa los SVG de `brand/svg/`).
+- `python brand/_src/gen_marca.py` regenera todos los SVG; `gen_manual.py` regenera la lámina.
+
+La paleta vive como tokens `marca-*` en `src/index.css` (`marca-600` = naranja de acción, AA con texto blanco).
+
+---
+
 ## Arquitectura
 
 ### Base de datos (`supabase/migrations/`)

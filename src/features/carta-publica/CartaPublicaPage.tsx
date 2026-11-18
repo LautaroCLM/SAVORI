@@ -3,6 +3,7 @@ import { useEffect } from 'react'
 import { formatearPrecio } from '@/lib/formato'
 import { mensajeDeError } from '@/lib/errores'
 import { Boton, PantallaCargando, PantallaCentrada } from '@/components/ui'
+import { Logo } from '@/components/Logo'
 import { OfflineBanner } from '@/components/OfflineBanner'
 import type { ProductoCarta } from '@/services/cartaPublica'
 import { useCarta } from './useCarta'
@@ -107,6 +108,11 @@ export function CartaPublicaPage() {
           ))
         )}
       </main>
+
+      <footer className="border-t border-stone-100 px-5 py-8 text-center">
+        <p className="text-[11px] tracking-wider text-stone-400 uppercase">Carta digital por</p>
+        <Logo className="mx-auto mt-2 h-5 opacity-80" />
+      </footer>
     </div>
   )
 }

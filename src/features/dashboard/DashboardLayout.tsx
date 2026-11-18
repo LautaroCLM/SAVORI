@@ -2,6 +2,7 @@ import { NavLink, Navigate, Outlet } from 'react-router-dom'
 import { useMutation } from '@tanstack/react-query'
 import { useUsuario } from '@/features/auth/useContexto'
 import { cerrarSesion } from '@/services/auth'
+import { Logo } from '@/components/Logo'
 import { OfflineBanner } from '@/components/OfflineBanner'
 import { NAVEGACION, rutaInicial, type ItemNav } from './navegacion'
 
@@ -42,7 +43,8 @@ export function DashboardLayout() {
     <div className="flex min-h-dvh flex-col md:flex-row">
       {/* Sidebar (escritorio) */}
       <aside className="hidden w-60 shrink-0 flex-col bg-stone-900 md:flex">
-        <div className="border-b border-stone-800 px-5 py-5">
+        <div className="border-b border-stone-800 px-5 pt-5 pb-4">
+          <Logo tema="oscuro" className="mb-5 h-7" />
           <p className="truncate text-base font-bold text-white">{usuario.restaurante_nombre}</p>
           <p className="mt-0.5 truncate text-xs text-stone-400">
             {usuario.nombre} · {ETIQUETA_ROL[usuario.rol]}
@@ -67,9 +69,12 @@ export function DashboardLayout() {
       {/* Barra superior (móvil) */}
       <header className="bg-stone-900 md:hidden">
         <div className="flex items-center justify-between px-4 pt-3">
-          <div className="min-w-0">
-            <p className="truncate font-bold text-white">{usuario.restaurante_nombre}</p>
-            <p className="truncate text-xs text-stone-400">{usuario.nombre}</p>
+          <div className="flex min-w-0 items-center gap-3">
+            <Logo variante="simbolo" tema="oscuro" className="h-8 shrink-0" />
+            <div className="min-w-0">
+              <p className="truncate font-bold text-white">{usuario.restaurante_nombre}</p>
+              <p className="truncate text-xs text-stone-400">{usuario.nombre}</p>
+            </div>
           </div>
           <button onClick={() => salir.mutate()} className="shrink-0 text-sm text-stone-400 hover:text-white">
             Salir

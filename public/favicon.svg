@@ -1,1 +1,5 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><rect width="32" height="32" rx="8" fill="#c2410c"/><path d="M11 7v8a3 3 0 0 0 2 2.8V25h2v-7.2A3 3 0 0 0 17 15V7h-1.5v6h-1V7h-1v6h-1V7zM21 7c-1.7 0-3 2.2-3 5.5 0 2 .8 3.4 2 3.9V25h2V7z" fill="#fff"/></svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256"><title>Savori</title><rect width="256" height="256" rx="57.6" fill="#FF5B14"/><g transform="translate(68.46 28.16) scale(0.916)">
+
+<path fill="#FFFFFF" d="M130 65A65 65 0 1 0 65 130A23 23 0 1 1 59.05 175.22A21 21 0 0 0 48.18 215.79A65 65 0 1 0 65 88A23 23 0 1 1 88 65A21 21 0 0 0 130 65Z"/>
+<circle fill="#1B1613" cx="21" cy="153" r="21"/>
+</g></svg>
