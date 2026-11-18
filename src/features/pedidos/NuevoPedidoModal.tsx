@@ -72,16 +72,17 @@ function Formulario({ onCerrar, mesas, mesaFija }: { onCerrar: () => void; mesas
             <ul className="divide-y divide-stone-100">
               {g.productos.map((p) => {
                 const c = cantidades[p.id] ?? 0
+                const tope = p.controla_stock ? Math.min(50, p.stock_actual) : 50
                 return (
                   <li key={p.id} className="flex items-center gap-3 px-4 py-2.5">
                     <div className="min-w-0 flex-1">
                       <p className="truncate text-sm font-medium">{p.nombre}</p>
-                      <p className="text-xs text-stone-500 tabular-nums">{formatearPrecio(p.precio)}</p>
+                      <p className="text-xs text-stone-500 tabular-nums">{formatearPrecio(p.precio)}{p.controla_stock && <span className={p.stock_actual <= 0 ? ' font-semibold text-red-700' : ''}> · {p.stock_actual <= 0 ? 'sin stock' : `quedan ${p.stock_actual}`}</span>}</p>
                     </div>
                     <div className="flex items-center gap-2">
                       <button type="button" onClick={() => cambiar(p.id, -1)} disabled={c === 0} aria-label={`Quitar ${p.nombre}`} className="size-9 rounded-lg border border-stone-300 text-lg leading-none hover:bg-stone-100 disabled:opacity-30">−</button>
                       <span className="w-6 text-center font-semibold tabular-nums">{c}</span>
-                      <button type="button" onClick={() => cambiar(p.id, 1)} aria-label={`Agregar ${p.nombre}`} className="size-9 rounded-lg border border-stone-300 text-lg leading-none hover:bg-stone-100">+</button>
+                      <button type="button" onClick={() => cambiar(p.id, 1)} disabled={c >= tope} aria-label={`Agregar ${p.nombre}`} className="size-9 rounded-lg border border-stone-300 text-lg leading-none hover:bg-stone-100 disabled:opacity-30">+</button>
                     </div>
                   </li>
                 )

@@ -4,8 +4,8 @@ import { reproducirAviso } from '@/lib/sonido'
 import { suscribirRestaurante, type TablaRealtime } from '@/services/realtime'
 
 const CLAVES: Record<TablaRealtime, string[]> = {
-  pedidos: ['pedidos', 'sesiones'],
-  pedido_items: ['pedidos'],
+  pedidos: ['pedidos', 'sesiones', 'productos', 'movimientos'],
+  pedido_items: ['pedidos', 'productos', 'movimientos'],
   mesas: ['mesas'],
   sesiones_mesa: ['sesiones', 'pedidos'],
 }

@@ -297,7 +297,10 @@ isOneToOne: false
             [_ in never]: never
           }
           Functions: {
-            "crear_mi_restaurante":
+            "_mover_stock":
+{ Args: { "p_delta": number,"p_motivo": string,"p_pedido_id": string,"p_producto_id": string }; Returns: undefined
+                           },
+"crear_mi_restaurante":
 { Args: { "p_mi_nombre": string,"p_nombre_restaurante": string }; Returns: string
                            },
 "crear_pedido_mozo":
@@ -327,8 +330,21 @@ isOneToOne: false
 "obtener_carta":
 { Args: { "p_token": string }; Returns: Json
                            },
+"productos_mas_vendidos":
+{ Args: { "p_desde": string,"p_hasta": string,"p_limite"?: number }; Returns: {
+              "ganancia": number,"ingresos": number,"nombre": string,"unidades": number
+            }[]
+                           },
 "regenerar_qr_mesa":
 { Args: { "p_mesa_id": string }; Returns: string
+                           },
+"registrar_movimiento_stock":
+{ Args: { "p_cantidad": number,"p_motivo"?: string,"p_producto_id": string,"p_tipo": Database["public"]['Enums']["tipo_movimiento_stock"] }; Returns: number
+                           },
+"resumen_ganancias":
+{ Args: { "p_agrupar"?: string,"p_desde": string,"p_hasta": string }; Returns: {
+              "costos": number,"ganancia": number,"ingresos": number,"pedidos": number,"periodo": string,"unidades": number
+            }[]
                            },
 "unirme_con_codigo":
 { Args: { "p_codigo": string,"p_mi_nombre": string }; Returns: string

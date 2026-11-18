@@ -3,7 +3,7 @@
 Multi-restaurante (multi-tenant) sobre **Supabase**, con frontend **React + Vite + TypeScript + Tailwind**.
 Interfaz en español (Argentina), moneda ARS.
 
-> **Estado:** Fases 1, 2 (sin imágenes) y 3 listas: auth y onboarding, carta, mesas con mapa, pedidos por QR y de mozo, cocina y cobro, todo en tiempo real. Falta la subida de imágenes a Cloudflare R2 (Fase 2), stock y ganancias (Fase 4) y Tauri/offline (Fase 5).
+> **Estado:** Fases 1 a 4 listas: auth y onboarding, carta, mesas con mapa, pedidos por QR y de mozo, cocina, cobro, stock automático y ganancias, todo en tiempo real. Falta la subida de imágenes a Cloudflare R2 (Fase 2) y Tauri/offline (Fase 5).
 
 ---
 
@@ -56,7 +56,7 @@ Carta pública: <http://localhost:5173/m/demo-mesa-1-token> (hasta `demo-mesa-6-
 npx supabase test db
 ```
 
-Corre `supabase/tests/aislamiento_test.sql` (pgTAP) y `onboarding_test.sql` (95 tests en total), que verifica entre otras cosas:
+Corre `supabase/tests/aislamiento_test.sql` (pgTAP) y `onboarding_test.sql` (127 tests en total), que verifica entre otras cosas:
 
 - un usuario del restaurante A **no ve ni modifica** datos del restaurante B (todas las tablas);
 - `anon` **no puede leer ninguna tabla** directamente ni ejecutar funciones internas;
@@ -161,6 +161,10 @@ La paleta vive como tokens `marca-*` en `src/index.css` (`marca-600` = naranja d
 3. El pedido aparece **al instante** (con aviso sonoro) en **Cocina** y en **Pedidos**. Cocina pasa cada pedido a *En preparación* y *Listo*.
 4. El **mozo** ve el ✓ verde en la mesa del mapa, marca *Entregado*, puede **cargar pedidos** propios (*+ Nuevo pedido*) y **cierra la cuenta** con el medio de pago; la mesa vuelve a *Libre*.
 
+**Stock** (solo en productos con *Controlar stock* activado, desde *Stock → Configurar*): cada venta **descuenta** unidades en forma atómica (si dos mesas piden la última, una recibe "sin stock"), un producto agotado **desaparece de la carta** de los clientes, **cancelar** un pedido devuelve el stock, y todo queda en *Stock → Movimientos*. El admin registra entradas (compras), salidas (mermas) y conteos físicos. El menú muestra un aviso rojo con la cantidad de productos agotados o bajo el mínimo.
+
+**Ganancias** (admin): *Ganancias → período* (hoy, 7/30 días, este mes, mes pasado o personalizado) muestra ganancia, ingresos, costos, margen, ticket promedio, evolución por día/semana/mes, productos más vendidos y cobros por medio de pago. Cuenta solo pedidos **entregados**: (precio − costo) × cantidad con los valores del momento de la venta (editar un producto no altera el historial).
+
 Todo se sincroniza con **Supabase Realtime** (`pedidos`, `pedido_items`, `mesas`, `sesiones_mesa`, filtrado por restaurante). Si se corta la conexión se muestra *SIN CONEXIÓN* y, al volver, se resincroniza solo.
 
 ---
@@ -177,6 +181,7 @@ Todo se sincroniza con **Supabase Realtime** (`pedidos`, `pedido_items`, `mesas`
 | `…04_rpc_publicas_y_realtime.sql` | `obtener_carta`, `crear_pedido_qr`, publicación Realtime        |
 | `20261118…_onboarding_invitaciones.sql` | `invitaciones`, `crear_mi_restaurante`, `unirme_con_codigo`, `generar_invitacion` |
 | `20261119…_pedidos_mozo.sql` | `crear_pedido_mozo`, total de la cuenta abierta en vivo, Realtime de `sesiones_mesa` |
+| `20261120…_stock_ganancias.sql` | descuento/devolución automática de stock, `registrar_movimiento_stock`, `resumen_ganancias`, `productos_mas_vendidos` |
 
 Ajustes respecto al esquema inicial:
 

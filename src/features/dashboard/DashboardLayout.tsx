@@ -4,6 +4,7 @@ import { useUsuario } from '@/features/auth/useContexto'
 import { cerrarSesion } from '@/services/auth'
 import { Logo } from '@/components/Logo'
 import { OfflineBanner } from '@/components/OfflineBanner'
+import { useCantidadAlertasStock } from '@/features/stock/useStock'
 import { useRealtimeRestaurante } from './useRealtime'
 import { NAVEGACION, rutaInicial, type ItemNav } from './navegacion'
 
@@ -17,7 +18,7 @@ function Icono({ d }: { d: string }) {
   )
 }
 
-function EnlaceNav({ item, compacto }: { item: ItemNav; compacto?: boolean }) {
+function EnlaceNav({ item, compacto, aviso }: { item: ItemNav; compacto?: boolean; aviso?: number }) {
   return (
     <NavLink
       to={item.ruta}
@@ -31,6 +32,9 @@ function EnlaceNav({ item, compacto }: { item: ItemNav; compacto?: boolean }) {
     >
       <Icono d={item.icono} />
       {item.etiqueta}
+      {aviso ? (
+        <span className="ml-auto rounded-full bg-red-600 px-1.5 py-0.5 text-[11px] leading-none font-bold text-white" title="Productos agotados o con stock bajo">{aviso}</span>
+      ) : null}
     </NavLink>
   )
 }
@@ -40,6 +44,7 @@ export function DashboardLayout() {
   const items = NAVEGACION.filter((item) => item.roles.includes(usuario.rol))
   const salir = useMutation({ mutationFn: cerrarSesion })
   useRealtimeRestaurante(usuario.restaurante_id)
+  const alertasStock = useCantidadAlertasStock(usuario.rol === 'admin')
 
   return (
     <div className="flex min-h-dvh flex-col md:flex-row">
@@ -54,7 +59,7 @@ export function DashboardLayout() {
         </div>
         <nav className="flex flex-1 flex-col gap-1 p-3">
           {items.map((item) => (
-            <EnlaceNav key={item.ruta} item={item} />
+            <EnlaceNav key={item.ruta} item={item} aviso={item.ruta === '/stock' ? alertasStock : 0} />
           ))}
         </nav>
         <div className="border-t border-stone-800 p-3">
@@ -84,7 +89,7 @@ export function DashboardLayout() {
         </div>
         <nav className="flex gap-1 overflow-x-auto px-3 py-3">
           {items.map((item) => (
-            <EnlaceNav key={item.ruta} item={item} compacto />
+            <EnlaceNav key={item.ruta} item={item} compacto aviso={item.ruta === '/stock' ? alertasStock : 0} />
           ))}
         </nav>
       </header>
