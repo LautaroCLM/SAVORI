@@ -8,6 +8,12 @@ const MENSAJES: Record<string, string> = {
   ITEMS_INVALIDOS: 'El pedido tiene datos inválidos.',
   PRODUCTO_NO_DISPONIBLE: 'Algún producto ya no está disponible. Actualizá la carta.',
   SIN_STOCK: 'No hay stock suficiente de algún producto.',
+  // Onboarding
+  NO_AUTENTICADO: 'Tu sesión venció. Volvé a ingresar.',
+  YA_TIENE_RESTAURANTE: 'Tu usuario ya pertenece a un restaurante.',
+  NOMBRE_INVALIDO: 'Revisá los nombres: tienen que tener entre 2 y 80 caracteres.',
+  CODIGO_INVALIDO: 'El código no existe, ya se usó, venció o fue revocado.',
+  ROL_INVALIDO: 'Rol inválido.',
   DEMASIADOS_PEDIDOS: 'Hiciste muchos pedidos seguidos. Esperá unos minutos o llamá al mozo.',
 }
 

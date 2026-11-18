@@ -29,6 +29,7 @@ const rutasDashboard: RouteObject[] = [
     children: [
       { path: 'carta', lazy: async () => ({ Component: (await import('@/features/carta/CartaPage')).CartaPage }) },
       { path: 'stock', lazy: async () => ({ Component: (await import('@/features/stock/StockPage')).StockPage }) },
+      { path: 'equipo', lazy: async () => ({ Component: (await import('@/features/equipo/EquipoPage')).EquipoPage }) },
       { path: 'ganancias', lazy: async () => ({ Component: (await import('@/features/ganancias/GananciasPage')).GananciasPage }) },
     ],
   },

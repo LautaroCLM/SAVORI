@@ -4,6 +4,7 @@ import { useAuth } from '@/features/auth/AuthProvider'
 import { useContexto, useUsuario } from '@/features/auth/useContexto'
 import { cerrarSesion, type Rol } from '@/services/auth'
 import { mensajeDeError } from '@/lib/errores'
+import { OnboardingPage } from '@/features/auth/OnboardingPage'
 import { Boton, PantallaCargando, PantallaCentrada } from '@/components/ui'
 
 function PantallaBloqueo({ titulo, mensaje, accion }: { titulo: string; mensaje: string; accion?: ReactNode }) {
@@ -39,14 +40,8 @@ export function RequireAuth() {
       />
     )
   }
-  if (!contexto.data) {
-    return (
-      <PantallaBloqueo
-        titulo="Usuario sin restaurante"
-        mensaje="Tu usuario no está vinculado a ningún restaurante. Contactá al administrador del sistema."
-      />
-    )
-  }
+  // Primer ingreso: todavía sin restaurante → crear el propio o unirse con código
+  if (!contexto.data) return <OnboardingPage />
   if (!contexto.data.restaurante_activo) {
     return (
       <PantallaBloqueo

@@ -43,6 +43,26 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"invitaciones": {
+                  Row: {
+                    "codigo": string,"creada_por": string | null,"created_at": string,"expira_at": string,"id": string,"restaurante_id": string,"revocada": boolean,"rol": Database["public"]['Enums']["rol_usuario"],"usada_at": string | null,"usada_por": string | null
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "codigo": string,"creada_por"?: string | null,"created_at"?: string,"expira_at"?: string,"id"?: string,"restaurante_id": string,"revocada"?: boolean,"rol": Database["public"]['Enums']["rol_usuario"],"usada_at"?: string | null,"usada_por"?: string | null
+                  }
+                  Update: {
+                    "codigo"?: string,"creada_por"?: string | null,"created_at"?: string,"expira_at"?: string,"id"?: string,"restaurante_id"?: string,"revocada"?: boolean,"rol"?: Database["public"]['Enums']["rol_usuario"],"usada_at"?: string | null,"usada_por"?: string | null
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "invitaciones_restaurante_id_fkey"
+      columns: ["restaurante_id"]
+isOneToOne: false
+      referencedRelation: "restaurantes"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"mesas": {
                   Row: {
                     "alto": number,"ancho": number,"capacidad": number,"created_at": string,"estado": Database["public"]['Enums']["estado_mesa"],"forma": Database["public"]['Enums']["forma_mesa"],"id": string,"numero": number,"qr_token": string,"restaurante_id": string,"rotacion": number,"salon_id": string,"updated_at": string,"x": number,"y": number
@@ -277,8 +297,17 @@ isOneToOne: false
             [_ in never]: never
           }
           Functions: {
-            "crear_pedido_qr":
+            "crear_mi_restaurante":
+{ Args: { "p_mi_nombre": string,"p_nombre_restaurante": string }; Returns: string
+                           },
+"crear_pedido_qr":
 { Args: { "p_items": Json,"p_notas"?: string,"p_token": string }; Returns: Json
+                           },
+"generar_codigo_invitacion":
+{ Args: Record<PropertyKey, never>; Returns: string
+                           },
+"generar_invitacion":
+{ Args: { "p_rol": Database["public"]['Enums']["rol_usuario"] }; Returns: string
                            },
 "generar_qr_token":
 { Args: Record<PropertyKey, never>; Returns: string
@@ -297,6 +326,9 @@ isOneToOne: false
                            },
 "regenerar_qr_mesa":
 { Args: { "p_mesa_id": string }; Returns: string
+                           },
+"unirme_con_codigo":
+{ Args: { "p_codigo": string,"p_mi_nombre": string }; Returns: string
                            }
           }
           Enums: {

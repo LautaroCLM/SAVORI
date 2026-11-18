@@ -56,7 +56,7 @@ Carta pública: <http://localhost:5173/m/demo-mesa-1-token> (hasta `demo-mesa-6-
 npx supabase test db
 ```
 
-Corre `supabase/tests/aislamiento_test.sql` (pgTAP, 54 tests), que verifica entre otras cosas:
+Corre `supabase/tests/aislamiento_test.sql` (pgTAP) y `onboarding_test.sql` (76 tests en total), que verifica entre otras cosas:
 
 - un usuario del restaurante A **no ve ni modifica** datos del restaurante B (todas las tablas);
 - `anon` **no puede leer ninguna tabla** directamente ni ejecutar funciones internas;
@@ -91,19 +91,44 @@ Para el hosting del frontend sirve cualquier hosting estático (Cloudflare Pages
 
 ---
 
-## 3. Crear restaurantes y usuarios
+## 3. Usuarios, restaurantes y equipo
 
-Se corren **desde tu PC** (usan `.env.scripts`):
+**Solo vos creás cuentas** (el registro público está cerrado). Desde tu PC (usan `.env.scripts`):
 
 ```powershell
-# Restaurante + usuario admin (si no pasás --password se genera una y se muestra)
-npm run crear-restaurante -- --nombre "La Parrilla de Juan" --email juan@laparrilla.com --admin-nombre "Juan Pérez"
-
-# Usuarios extra para ese restaurante (mozo, cocina u otro admin)
-npm run crear-usuario -- --restaurante la-parrilla-de-juan --email pedro@laparrilla.com --nombre "Pedro" --rol mozo
+# Crear un usuario de acceso (el caso normal). Si no pasás --password se genera una y se muestra.
+npm run crear-usuario -- --email juan@laparrilla.com
 ```
 
-El `slug` se genera a partir del nombre (o pasalo con `--slug`). Si algún paso falla, el script deshace lo creado.
+En su **primer ingreso** esa persona ve una pantalla de bienvenida y elige:
+
+- **Crear mi restaurante** → queda como `admin` de un restaurante nuevo; o
+- **Tengo un código** → se une a un restaurante existente con el rol de la invitación.
+
+**Equipo (admin):** en el módulo *Equipo* el admin genera códigos de invitación (`XXXX-XXXX`) para mozo, cocina u otro admin.
+Cada código sirve una sola vez, vence a los 7 días y se puede revocar. También cambia roles y desactiva usuarios.
+Quien se une con un código necesita igualmente un usuario creado por vos (`crear-usuario`).
+
+Alternativas por script:
+
+```powershell
+# Restaurante + admin de una vez
+npm run crear-restaurante -- --nombre "La Parrilla de Juan" --email juan@laparrilla.com --admin-nombre "Juan Pérez"
+
+# Usuario directo dentro de un restaurante existente
+npm run crear-usuario -- --email pedro@laparrilla.com --restaurante la-parrilla-de-juan --nombre "Pedro" --rol mozo
+```
+
+### Entornos (local vs producción)
+
+| Archivo | Para qué | Apunta a |
+| --- | --- | --- |
+| `.env.local` | frontend (`npm run build`, hosting) | **producción** |
+| `.env.development.local` | `npm run dev` (tiene prioridad en desarrollo) | Supabase **local** |
+| `.env.scripts` | scripts de administración | **producción** |
+| `.env.scripts.localdev` | copia con la service role local | local |
+
+Para correr un script contra la base local: `$env:SUPABASE_URL="http://127.0.0.1:54321"; $env:SUPABASE_SERVICE_ROLE_KEY="<clave local>"` antes del comando (las variables de entorno ganan al archivo).
 
 **Suspender una cuenta:** en el SQL Editor de Supabase:
 
@@ -125,6 +150,7 @@ Con `activo = false` sus usuarios ven "Cuenta suspendida", la RLS les bloquea to
 | `…02_funciones_y_triggers.sql`  | `mi_restaurante_id()`, `mi_rol()`, `mi_contexto()`, triggers     |
 | `…03_rls.sql`                   | privilegios y políticas RLS                                      |
 | `…04_rpc_publicas_y_realtime.sql` | `obtener_carta`, `crear_pedido_qr`, publicación Realtime        |
+| `20261118…_onboarding_invitaciones.sql` | `invitaciones`, `crear_mi_restaurante`, `unirme_con_codigo`, `generar_invitacion` |
 
 Ajustes respecto al esquema inicial:
 
@@ -175,7 +201,7 @@ El aviso **SIN CONEXIÓN** ya se muestra en el dashboard, en el login y en la ca
 | ----------------- | :---: | :--: | :----: |
 | Mesas, Pedidos    |  ✔   |  ✔   |        |
 | Cocina            |  ✔   |      |   ✔    |
-| Carta, Stock, Ganancias | ✔ |   |        |
+| Carta, Stock, Equipo, Ganancias | ✔ |   |        |
 
 ---
 

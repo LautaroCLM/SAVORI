@@ -39,6 +39,12 @@ export const NAVEGACION: ItemNav[] = [
     icono: 'M21 8 12 3 3 8m18 0-9 5m9-5v8l-9 5m0-8L3 8m9 5v8M3 8v8l9 5',
   },
   {
+    ruta: '/equipo',
+    etiqueta: 'Equipo',
+    roles: ['admin'],
+    icono: 'M16 11a3 3 0 1 0 0-6m-8 6a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm0 2c-2.8 0-5 1.8-5 4v1h10v-1c0-2.2-2.2-4-5-4zm8 0c2.8 0 5 1.8 5 4v1h-3',
+  },
+  {
     ruta: '/ganancias',
     etiqueta: 'Ganancias',
     roles: ['admin'],
