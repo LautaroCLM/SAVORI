@@ -1,0 +1,9 @@
+# Nunca subir secretos ni cosas locales
+.env
+.env.*
+!.env.example
+supabase/
+scripts/
+brand/_src/
+brand/concepts/
+.claude/

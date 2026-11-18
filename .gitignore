@@ -35,3 +35,6 @@ supabase/.temp
 # Renders temporales de la marca
 brand/_src/renders/
 brand/_src/fav/
+
+.vercel
+.env*
