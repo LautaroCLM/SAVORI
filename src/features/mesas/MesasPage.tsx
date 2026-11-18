@@ -5,8 +5,13 @@ import { Modal } from '@/components/Modal'
 import { Boton, Campo, Spinner } from '@/components/ui'
 import { mensajeDeError } from '@/lib/errores'
 import type { Mesa, Salon } from '@/services/mesas'
+import { NuevoPedidoModal } from '@/features/pedidos/NuevoPedidoModal'
+import { usePedidosActivos, useSesionesAbiertas } from '@/features/pedidos/usePedidos'
+import { EditorMesa } from './EditorMesa'
+import { MapaSalon, type InfoMesa } from './MapaSalon'
+import { MesaPanel } from './MesaPanel'
 import { QrModal } from './QrModal'
-import { useMesas, useMutacionesMesas, useSalones } from './useMesasAdmin'
+import { useMesas, useMoverMesa, useMutacionesMesas, useSalones } from './useMesasAdmin'
 
 type Forma = Mesa['forma']
 const FORMAS: { valor: Forma; etiqueta: string }[] = [
@@ -105,6 +110,14 @@ export function MesasPage() {
   const [seleccion, setSeleccion] = useState<string | null>(null)
   const [dialogo, setDialogo] = useState<Dialogo>(null)
   const [qrDe, setQrDe] = useState<Mesa | null>(null)
+  const [vista, setVista] = useState<'mapa' | 'lista'>('mapa')
+  const [editando, setEditando] = useState(false)
+  const [elegidaId, setElegidaId] = useState<string | null>(null)
+  const [panelDe, setPanelDe] = useState<Mesa | null>(null)
+  const [pedidoPara, setPedidoPara] = useState<Mesa | null>(null)
+  const pedidos = usePedidosActivos()
+  const sesiones = useSesionesAbiertas()
+  const mover = useMoverMesa()
 
   if (salones.isPending || mesas.isPending) return <div className="flex justify-center py-20"><Spinner className="size-8" /></div>
   if (salones.isError || mesas.isError) return <p className="rounded-lg bg-red-50 p-4 text-red-700">{mensajeDeError(salones.error ?? mesas.error)}</p>
@@ -114,6 +127,20 @@ export function MesasPage() {
   const actual = sal.find((s) => s.id === seleccion) ?? sal[0] ?? null
   const mesasActual = actual ? mes.filter((x) => x.salon_id === actual.id) : []
   const cerrar = () => setDialogo(null)
+  const info: Record<string, InfoMesa> = {}
+  for (const x of mes) info[x.id] = { activos: 0, listos: 0, total: null }
+  for (const p of pedidos.data ?? []) {
+    const i = info[p.mesa_id]
+    if (i) {
+      i.activos += 1
+      if (p.estado === 'listo') i.listos += 1
+    }
+  }
+  for (const se of sesiones.data ?? []) {
+    const i = info[se.mesa_id]
+    if (i) i.total = se.total
+  }
+  const elegida = mes.find((x) => x.id === elegidaId) ?? null
   const errorAccion = m.eliminarMesa.error ?? m.eliminarSalon.error ?? m.actualizarMesa.error
 
   function borrarSalon(s: Salon) {
@@ -133,6 +160,24 @@ export function MesasPage() {
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h1 className="text-2xl font-bold text-stone-900">Mesas</h1>
         <div className="flex flex-wrap gap-2">
+          <div role="tablist" className="inline-flex rounded-xl bg-stone-200/60 p-1">
+            {(['mapa', 'lista'] as const).map((v) => (
+              <button
+                key={v}
+                role="tab"
+                aria-selected={vista === v}
+                onClick={() => { setVista(v); setEditando(false) }}
+                className={`rounded-lg px-4 text-sm font-semibold transition-colors ${vista === v ? 'bg-white text-stone-900 shadow-sm' : 'text-stone-500 hover:text-stone-800'}`}
+              >
+                {v === 'mapa' ? 'Mapa' : 'Lista'}
+              </button>
+            ))}
+          </div>
+          {vista === 'mapa' && esAdmin && mesasActual.length > 0 && (
+            <Boton variante={editando ? 'primario' : 'secundario'} onClick={() => { setEditando(!editando); setElegidaId(null) }}>
+              {editando ? 'Listo' : 'Editar mapa'}
+            </Boton>
+          )}
           {mes.length > 0 && (
             <Link to="/mesas/qr" className="inline-flex h-11 items-center rounded-lg border border-stone-300 bg-white px-4 text-sm font-semibold text-stone-700 hover:bg-stone-100">
               Imprimir todos los QR
@@ -179,8 +224,32 @@ export function MesasPage() {
 
           {mesasActual.length === 0 ? (
             <p className="mt-6 rounded-xl border border-dashed border-stone-300 bg-white p-8 text-center text-sm text-stone-500">Este salón todavía no tiene mesas.</p>
-          ) : (
-            <ul className="mt-5 grid grid-cols-[repeat(auto-fill,minmax(15rem,1fr))] gap-4">
+          ) : vista === 'mapa' ? (
+            <div className="mt-5">
+              {editando ? (
+                <p className="mb-3 rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-900">Modo edición: arrastrá las mesas para acomodarlas y tocá una para cambiar su tamaño, giro o forma.</p>
+              ) : (
+                <p className="mb-3 flex flex-wrap gap-x-4 gap-y-1 text-xs text-stone-500">
+                  <span><b className="text-emerald-700">●</b> Libre</span>
+                  <span><b className="text-rose-600">●</b> Ocupada (muestra el total de la cuenta)</span>
+                  <span><b className="text-amber-500">●</b> Con pedidos en curso</span>
+                  <span><b className="text-emerald-600">✓</b> Pedido listo para entregar</span>
+                </p>
+              )}
+              <MapaSalon
+                mesas={mesasActual}
+                info={info}
+                editando={editando}
+                seleccionadaId={editando ? elegidaId : null}
+                onSeleccionar={(x) => (editando ? setElegidaId(x.id) : setPanelDe(x))}
+                onMover={(x, px, py) => mover.mutate({ id: x.id, x: px, y: py })}
+              />
+              {mover.isError && <p role="alert" className="mt-3 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">{mensajeDeError(mover.error)}</p>}
+              {editando && elegida && elegida.salon_id === actual?.id && (
+                <EditorMesa mesa={elegida} onCambiar={(cambios) => m.actualizarMesa.mutate({ id: elegida.id, cambios })} />
+              )}
+            </div>
+          ) : (            <ul className="mt-5 grid grid-cols-[repeat(auto-fill,minmax(15rem,1fr))] gap-4">
               {mesasActual.map((x) => (
                 <li key={x.id} className="flex flex-col gap-3 rounded-xl bg-white p-4 shadow-sm ring-1 ring-stone-200">
                   <div className="flex items-start justify-between">
@@ -242,6 +311,8 @@ export function MesasPage() {
         )}
       </Modal>
 
+      <MesaPanel mesa={panelDe ? (mes.find((x) => x.id === panelDe.id) ?? panelDe) : null} onCerrar={() => setPanelDe(null)} onNuevoPedido={(x) => setPedidoPara(x)} onVerQr={(x) => setQrDe(x)} />
+      <NuevoPedidoModal abierto={pedidoPara !== null} onCerrar={() => setPedidoPara(null)} mesas={mes} mesaFija={pedidoPara} />
       <QrModal mesa={qrDe ? (mes.find((x) => x.id === qrDe.id) ?? qrDe) : null} esAdmin={esAdmin} onCerrar={() => setQrDe(null)} />
     </div>
   )

@@ -300,6 +300,9 @@ isOneToOne: false
             "crear_mi_restaurante":
 { Args: { "p_mi_nombre": string,"p_nombre_restaurante": string }; Returns: string
                            },
+"crear_pedido_mozo":
+{ Args: { "p_items": Json,"p_mesa_id": string,"p_notas"?: string }; Returns: Json
+                           },
 "crear_pedido_qr":
 { Args: { "p_items": Json,"p_notas"?: string,"p_token": string }; Returns: Json
                            },

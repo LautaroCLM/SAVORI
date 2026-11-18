@@ -3,7 +3,7 @@
 Multi-restaurante (multi-tenant) sobre **Supabase**, con frontend **React + Vite + TypeScript + Tailwind**.
 Interfaz en español (Argentina), moneda ARS.
 
-> **Estado:** Fase 1 lista (scaffold, base de datos, auth, layout, onboarding) y Fase 2 parcial: ABM de carta (categorías y productos), salones y mesas, y QR imprimible por mesa. Falta la subida de imágenes a Cloudflare R2.
+> **Estado:** Fases 1, 2 (sin imágenes) y 3 listas: auth y onboarding, carta, mesas con mapa, pedidos por QR y de mozo, cocina y cobro, todo en tiempo real. Falta la subida de imágenes a Cloudflare R2 (Fase 2), stock y ganancias (Fase 4) y Tauri/offline (Fase 5).
 
 ---
 
@@ -56,7 +56,7 @@ Carta pública: <http://localhost:5173/m/demo-mesa-1-token> (hasta `demo-mesa-6-
 npx supabase test db
 ```
 
-Corre `supabase/tests/aislamiento_test.sql` (pgTAP) y `onboarding_test.sql` (76 tests en total), que verifica entre otras cosas:
+Corre `supabase/tests/aislamiento_test.sql` (pgTAP) y `onboarding_test.sql` (95 tests en total), que verifica entre otras cosas:
 
 - un usuario del restaurante A **no ve ni modifica** datos del restaurante B (todas las tablas);
 - `anon` **no puede leer ninguna tabla** directamente ni ejecutar funciones internas;
@@ -154,6 +154,17 @@ La paleta vive como tokens `marca-*` en `src/index.css` (`marca-600` = naranja d
 
 ---
 
+## Cómo se usa en el día a día
+
+1. **Admin** arma la **Carta** (categorías y productos) y los **salones y mesas**; en *Mesas → Editar mapa* acomoda las mesas arrastrándolas. Imprime los QR desde *Mesas → Imprimir todos los QR*.
+2. El **cliente** escanea el QR de su mesa, ve la carta y **pide desde el celular** (sin registrarse). Los precios los toma siempre el servidor.
+3. El pedido aparece **al instante** (con aviso sonoro) en **Cocina** y en **Pedidos**. Cocina pasa cada pedido a *En preparación* y *Listo*.
+4. El **mozo** ve el ✓ verde en la mesa del mapa, marca *Entregado*, puede **cargar pedidos** propios (*+ Nuevo pedido*) y **cierra la cuenta** con el medio de pago; la mesa vuelve a *Libre*.
+
+Todo se sincroniza con **Supabase Realtime** (`pedidos`, `pedido_items`, `mesas`, `sesiones_mesa`, filtrado por restaurante). Si se corta la conexión se muestra *SIN CONEXIÓN* y, al volver, se resincroniza solo.
+
+---
+
 ## Arquitectura
 
 ### Base de datos (`supabase/migrations/`)
@@ -165,6 +176,7 @@ La paleta vive como tokens `marca-*` en `src/index.css` (`marca-600` = naranja d
 | `…03_rls.sql`                   | privilegios y políticas RLS                                      |
 | `…04_rpc_publicas_y_realtime.sql` | `obtener_carta`, `crear_pedido_qr`, publicación Realtime        |
 | `20261118…_onboarding_invitaciones.sql` | `invitaciones`, `crear_mi_restaurante`, `unirme_con_codigo`, `generar_invitacion` |
+| `20261119…_pedidos_mozo.sql` | `crear_pedido_mozo`, total de la cuenta abierta en vivo, Realtime de `sesiones_mesa` |
 
 Ajustes respecto al esquema inicial:
 

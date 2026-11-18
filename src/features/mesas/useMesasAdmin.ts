@@ -10,6 +10,7 @@ import {
   listarMesas,
   listarSalones,
   regenerarQrMesa,
+  type Mesa,
 } from '@/services/mesas'
 
 const SALONES = ['salones'] as const
@@ -42,6 +43,24 @@ export function useMutacionesMesas() {
     eliminarMesa: useMutation({ mutationFn: eliminarMesa, onSuccess: refrescar }),
     regenerarQr: useMutation({ mutationFn: regenerarQrMesa, onSuccess: refrescar }),
   }
+}
+
+/** Mover una mesa en el mapa: se ve al instante y se revierte si el servidor la rechaza. */
+export function useMoverMesa() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: ({ id, x, y }: { id: string; x: number; y: number }) => actualizarMesa(id, { x, y }),
+    onMutate: async ({ id, x, y }) => {
+      await queryClient.cancelQueries({ queryKey: MESAS })
+      const previo = queryClient.getQueryData<Mesa[]>(MESAS)
+      queryClient.setQueryData<Mesa[]>(MESAS, (viejo) => viejo?.map((m) => (m.id === id ? { ...m, x, y } : m)))
+      return { previo }
+    },
+    onError: (_e, _v, ctx) => {
+      if (ctx?.previo) queryClient.setQueryData(MESAS, ctx.previo)
+    },
+    onSettled: () => queryClient.invalidateQueries({ queryKey: MESAS }),
+  })
 }
 
 /** SVG del QR de una URL (generado en el navegador, sin servicios externos). */

@@ -4,6 +4,7 @@ import { useUsuario } from '@/features/auth/useContexto'
 import { cerrarSesion } from '@/services/auth'
 import { Logo } from '@/components/Logo'
 import { OfflineBanner } from '@/components/OfflineBanner'
+import { useRealtimeRestaurante } from './useRealtime'
 import { NAVEGACION, rutaInicial, type ItemNav } from './navegacion'
 
 const ETIQUETA_ROL = { admin: 'Administrador', mozo: 'Mozo', cocina: 'Cocina' } as const
@@ -38,6 +39,7 @@ export function DashboardLayout() {
   const usuario = useUsuario()
   const items = NAVEGACION.filter((item) => item.roles.includes(usuario.rol))
   const salir = useMutation({ mutationFn: cerrarSesion })
+  useRealtimeRestaurante(usuario.restaurante_id)
 
   return (
     <div className="flex min-h-dvh flex-col md:flex-row">
