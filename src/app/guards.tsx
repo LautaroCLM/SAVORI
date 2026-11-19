@@ -5,15 +5,22 @@ import { useContexto, useUsuario } from '@/features/auth/useContexto'
 import { cerrarSesion, type Rol } from '@/services/auth'
 import { mensajeDeError } from '@/lib/errores'
 import { OnboardingPage } from '@/features/auth/OnboardingPage'
+import { CircleAlert, CirclePause, UserRoundX, WifiOff } from 'lucide-react'
+import { Logo } from '@/components/Logo'
 import { Boton, PantallaCargando, PantallaCentrada } from '@/components/ui'
+import { IconoRegenerar, IconoSalir } from '@/components/iconos'
 
-function PantallaBloqueo({ titulo, mensaje, accion }: { titulo: string; mensaje: string; accion?: ReactNode }) {
+function PantallaBloqueo({ titulo, mensaje, icono: Icono = CircleAlert, accion }: { titulo: string; mensaje: string; icono?: typeof CircleAlert; accion?: ReactNode }) {
   return (
     <PantallaCentrada>
-      <h1 className="text-xl font-bold text-stone-900">{titulo}</h1>
-      <p className="max-w-sm text-stone-600">{mensaje}</p>
+      <Logo className="mb-6 h-8" />
+      <span className="grid size-14 place-items-center rounded-full bg-superficie-2 text-tinta-2">
+        <Icono aria-hidden size={26} />
+      </span>
+      <h1 className="text-xl font-bold text-tinta">{titulo}</h1>
+      <p className="max-w-sm leading-relaxed text-tinta-2">{mensaje}</p>
       {accion ?? (
-        <Boton variante="secundario" onClick={() => cerrarSesion()}>
+        <Boton variante="secundario" icono={IconoSalir} onClick={() => cerrarSesion()}>
           Cerrar sesión
         </Boton>
       )}
@@ -32,8 +39,9 @@ function PantallaVerificandoSesion() {
   return (
     <PantallaBloqueo
       titulo="Verificando tu sesión…"
+      icono={WifiOff}
       mensaje="Está tardando más de lo normal: probablemente no hay conexión. Para abrir la app necesitás internet al menos una vez cada tanto; si ya estabas adentro, tus operaciones pendientes siguen guardadas en este dispositivo."
-      accion={<Boton onClick={() => window.location.reload()}>Reintentar</Boton>}
+      accion={<Boton icono={IconoRegenerar} onClick={() => window.location.reload()}>Reintentar</Boton>}
     />
   )
 }
@@ -53,7 +61,7 @@ export function RequireAuth() {
       <PantallaBloqueo
         titulo="No se pudo cargar tu cuenta"
         mensaje={mensajeDeError(contexto.error)}
-        accion={<Boton onClick={() => contexto.refetch()}>Reintentar</Boton>}
+        accion={<Boton icono={IconoRegenerar} onClick={() => contexto.refetch()}>Reintentar</Boton>}
       />
     )
   }
@@ -63,6 +71,7 @@ export function RequireAuth() {
     return (
       <PantallaBloqueo
         titulo="Cuenta suspendida"
+        icono={CirclePause}
         mensaje={`La cuenta de ${contexto.data.restaurante_nombre} está suspendida. Contactá al administrador del sistema.`}
       />
     )
@@ -71,6 +80,7 @@ export function RequireAuth() {
     return (
       <PantallaBloqueo
         titulo="Usuario desactivado"
+        icono={UserRoundX}
         mensaje="Tu usuario fue desactivado. Hablá con el administrador de tu restaurante."
       />
     )

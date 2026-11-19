@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { UsersRound } from 'lucide-react'
 import { useUsuario } from '@/features/auth/useContexto'
 import type { Rol } from '@/services/auth'
 import {
@@ -12,7 +13,10 @@ import {
 } from '@/services/onboarding'
 import { formatearFechaHora } from '@/lib/formato'
 import { mensajeDeError } from '@/lib/errores'
-import { Boton, Spinner } from '@/components/ui'
+import { cn } from '@/lib/utils'
+import { useConfirmar } from '@/components/Confirmar'
+import { Aviso, Boton, CargandoSeccion, EncabezadoPagina, Insignia, Selector, Tarjeta } from '@/components/ui'
+import { IconoCopiar, IconoExito, IconoInvitar } from '@/components/iconos'
 
 const ROLES: { valor: Rol; etiqueta: string }[] = [
   { valor: 'mozo', etiqueta: 'Mozo' },
@@ -28,9 +32,24 @@ function estadoInvitacion(inv: Invitacion): { texto: string; vigente: boolean } 
   return { texto: `Vence ${formatearFechaHora(inv.expira_at)}`, vigente: true }
 }
 
+function Iniciales({ nombre, apagado }: { nombre: string; apagado?: boolean }) {
+  const letras = nombre
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((p) => p[0]?.toUpperCase())
+    .join('')
+  return (
+    <span aria-hidden className={cn('grid size-10 shrink-0 place-items-center rounded-full text-sm font-bold', apagado ? 'bg-superficie-2 text-tinta-3' : 'bg-superficie-2 text-tinta-2')}>
+      {letras || <UsersRound size={16} />}
+    </span>
+  )
+}
+
 function Equipo() {
   const yo = useUsuario()
   const queryClient = useQueryClient()
+  const confirmar = useConfirmar()
   const equipo = useQuery({ queryKey: ['equipo'], queryFn: listarEquipo })
   const cambiar = useMutation({
     mutationFn: ({ id, cambios }: { id: string; cambios: Parameters<typeof actualizarMiembro>[1] }) =>
@@ -38,52 +57,68 @@ function Equipo() {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['equipo'] }),
   })
 
+  async function alternarActivo(id: string, nombre: string, activo: boolean) {
+    if (activo) {
+      const ok = await confirmar({
+        titulo: `Desactivar a ${nombre}`,
+        mensaje: 'No va a poder entrar al restaurante hasta que lo reactives. Su historial se conserva.',
+        confirmar: 'Desactivar',
+        tono: 'peligro',
+      })
+      if (!ok) return
+    }
+    cambiar.mutate({ id, cambios: { activo: !activo } })
+  }
+
+  const activos = equipo.data?.filter((m) => m.activo).length ?? 0
+
   return (
-    <section className="rounded-xl bg-white p-5 shadow-sm ring-1 ring-stone-200">
-      <h2 className="text-lg font-bold">Miembros</h2>
-      {equipo.isPending && <Spinner className="mt-4" />}
-      {equipo.isError && <p className="mt-3 text-sm text-red-700">{mensajeDeError(equipo.error)}</p>}
-      {cambiar.isError && <p className="mt-3 text-sm text-red-700">{mensajeDeError(cambiar.error)}</p>}
-      <ul className="mt-3 divide-y divide-stone-100">
+    <Tarjeta sinRelleno titulo="Miembros" descripcion={equipo.data ? `${activos} activos` : undefined}>
+      {equipo.isPending && <CargandoSeccion />}
+      {(equipo.isError || cambiar.isError) && (
+        <div className="px-5 pb-4">
+          <Aviso>{mensajeDeError(equipo.error ?? cambiar.error)}</Aviso>
+        </div>
+      )}
+      <ul className="divide-y divide-borde">
         {equipo.data?.map((m) => {
           const soyYo = m.id === yo.usuario_id
           return (
-            <li key={m.id} className="flex flex-wrap items-center gap-3 py-3">
-              <div className="min-w-0 flex-1">
-                <p className={`truncate font-medium ${m.activo ? '' : 'text-stone-400 line-through'}`}>
-                  {m.nombre} {soyYo && <span className="text-xs font-normal text-stone-500">(vos)</span>}
+            <li key={m.id} className="flex flex-wrap items-center gap-x-4 gap-y-2 px-5 py-3">
+              <Iniciales nombre={m.nombre} apagado={!m.activo} />
+              <div className="min-w-0 flex-1 basis-32">
+                <p className={cn('truncate font-semibold', !m.activo && 'text-tinta-3')}>
+                  {m.nombre} {soyYo && <span className="text-xs font-normal text-tinta-3">(vos)</span>}
                 </p>
+                {!m.activo && <p className="text-xs text-tinta-3">Desactivado</p>}
               </div>
               {soyYo ? (
-                <span className="text-sm text-stone-500">{etiquetaRol(m.rol)}</span>
+                <Insignia>{etiquetaRol(m.rol)}</Insignia>
               ) : (
-                <>
-                  <select
+                <div className="flex items-center gap-2">
+                  <Selector
                     aria-label={`Rol de ${m.nombre}`}
                     value={m.rol}
                     onChange={(e) => cambiar.mutate({ id: m.id, cambios: { rol: e.target.value as Rol } })}
-                    className="h-9 rounded-lg border border-stone-300 bg-white px-2 text-sm"
+                    className="h-10 text-sm"
+                    disabled={!m.activo}
                   >
                     {ROLES.map((r) => (
                       <option key={r.valor} value={r.valor}>
                         {r.etiqueta}
                       </option>
                     ))}
-                  </select>
-                  <Boton
-                    variante="secundario"
-                    className="h-9"
-                    onClick={() => cambiar.mutate({ id: m.id, cambios: { activo: !m.activo } })}
-                  >
+                  </Selector>
+                  <Boton variante={m.activo ? 'fantasma' : 'secundario'} tamano="sm" onClick={() => alternarActivo(m.id, m.nombre, m.activo)}>
                     {m.activo ? 'Desactivar' : 'Reactivar'}
                   </Boton>
-                </>
+                </div>
               )}
             </li>
           )
         })}
       </ul>
-    </section>
+    </Tarjeta>
   )
 }
 
@@ -107,69 +142,62 @@ function Invitaciones() {
   }
 
   return (
-    <section className="rounded-xl bg-white p-5 shadow-sm ring-1 ring-stone-200">
-      <h2 className="text-lg font-bold">Invitar a alguien</h2>
-      <p className="mt-1 text-sm text-stone-500">
-        Generá un código y pasáselo. La persona entra con su usuario, elige &quot;Tengo un código&quot; y queda en tu
-        restaurante con el rol que elijas. Cada código sirve una sola vez y vence en 7 días.
-      </p>
-      <div className="mt-4 flex flex-wrap items-center gap-3">
-        <select
-          aria-label="Rol de la invitación"
-          value={rol}
-          onChange={(e) => setRol(e.target.value as Rol)}
-          className="h-11 rounded-lg border border-stone-300 bg-white px-3 text-sm"
-        >
+    <Tarjeta
+      titulo="Invitar a alguien"
+      descripcion='La persona entra con su usuario, elige "Tengo un código" y queda en tu restaurante con el rol que elijas. Cada código sirve una vez y vence en 7 días.'
+    >
+      <div className="flex flex-wrap items-end gap-2">
+        <Selector etiqueta="Rol" id="inv-rol" value={rol} onChange={(e) => setRol(e.target.value as Rol)} envoltura="w-48">
           {ROLES.map((r) => (
             <option key={r.valor} value={r.valor}>
               {r.etiqueta}
             </option>
           ))}
-        </select>
-        <Boton onClick={() => generar.mutate()} cargando={generar.isPending}>
+        </Selector>
+        <Boton icono={IconoInvitar} onClick={() => generar.mutate()} cargando={generar.isPending}>
           Generar código
         </Boton>
       </div>
-      {(generar.isError || revocar.isError) && (
-        <p className="mt-3 text-sm text-red-700">{mensajeDeError(generar.error ?? revocar.error)}</p>
-      )}
+      {(generar.isError || revocar.isError) && <Aviso className="mt-4">{mensajeDeError(generar.error ?? revocar.error)}</Aviso>}
 
-      {lista.isPending && <Spinner className="mt-4" />}
-      <ul className="mt-4 divide-y divide-stone-100">
-        {lista.data?.map((inv) => {
-          const estado = estadoInvitacion(inv)
-          return (
-            <li key={inv.id} className="flex flex-wrap items-center gap-3 py-3">
-              <code className={`font-mono text-base font-semibold tracking-widest ${estado.vigente ? '' : 'text-stone-400 line-through'}`}>
-                {inv.codigo}
-              </code>
-              <span className="text-sm text-stone-500">
-                {etiquetaRol(inv.rol)} · {estado.texto}
-              </span>
-              {estado.vigente && (
-                <span className="ml-auto flex gap-2">
-                  <Boton variante="secundario" className="h-9" onClick={() => copiar(inv.codigo)}>
-                    {copiado === inv.codigo ? '¡Copiado!' : 'Copiar'}
-                  </Boton>
-                  <Boton variante="secundario" className="h-9" onClick={() => revocar.mutate(inv.id)}>
-                    Revocar
-                  </Boton>
+      {lista.isPending && <CargandoSeccion />}
+      {lista.data && lista.data.length > 0 && (
+        <ul className="mt-5 divide-y divide-borde border-t border-borde">
+          {lista.data.map((inv) => {
+            const estado = estadoInvitacion(inv)
+            return (
+              <li key={inv.id} className="flex flex-wrap items-center gap-x-4 gap-y-2 py-3">
+                <code className={cn('cifras text-base font-bold tracking-[0.18em]', estado.vigente ? 'text-tinta' : 'text-tinta-3 line-through')}>{inv.codigo}</code>
+                <span className="text-sm text-tinta-2">
+                  {etiquetaRol(inv.rol)} · <span className={estado.vigente ? '' : 'text-tinta-3'}>{estado.texto}</span>
                 </span>
-              )}
-            </li>
-          )
-        })}
-      </ul>
-    </section>
+                {estado.vigente && (
+                  <span className="ml-auto flex gap-1">
+                    <Boton variante="secundario" tamano="sm" icono={copiado === inv.codigo ? IconoExito : IconoCopiar} onClick={() => copiar(inv.codigo)}>
+                      {copiado === inv.codigo ? 'Copiado' : 'Copiar'}
+                    </Boton>
+                    <Boton variante="fantasma" tamano="sm" onClick={() => revocar.mutate(inv.id)}>
+                      Revocar
+                    </Boton>
+                  </span>
+                )}
+              </li>
+            )
+          })}
+        </ul>
+      )}
+    </Tarjeta>
   )
 }
 
 export function EquipoPage() {
   return (
-    <div className="mx-auto flex max-w-3xl flex-col gap-6">
-      <h1 className="text-2xl font-bold text-stone-900">Equipo</h1>
-      <Equipo />
-      <Invitaciones />
+    <div className="max-w-3xl">
+      <EncabezadoPagina titulo="Equipo" descripcion="Quién trabaja en el restaurante y qué puede hacer cada uno." />
+      <div className="flex flex-col gap-6">
+        <Equipo />
+        <Invitaciones />
+      </div>
     </div>
   )
 }

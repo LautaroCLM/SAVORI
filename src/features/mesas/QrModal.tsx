@@ -1,7 +1,10 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
+import { Printer } from 'lucide-react'
 import { Modal } from '@/components/Modal'
-import { Boton } from '@/components/ui'
+import { useConfirmar } from '@/components/Confirmar'
+import { Aviso, Boton, estiloBoton } from '@/components/ui'
+import { IconoCopiar, IconoDescargar, IconoExito, IconoRegenerar } from '@/components/iconos'
 import { mensajeDeError } from '@/lib/errores'
 import { urlCartaDeMesa, type Mesa } from '@/services/mesas'
 import { QrImagen } from './QrImagen'
@@ -12,6 +15,7 @@ export function QrModal({ mesa, esAdmin, onCerrar }: { mesa: Mesa | null; esAdmi
   const [copiado, setCopiado] = useState(false)
   const url = mesa ? urlCartaDeMesa(mesa.qr_token) : ''
   const qr = useQrSvg(url)
+  const confirmar = useConfirmar()
 
   async function copiar() {
     try {
@@ -33,34 +37,40 @@ export function QrModal({ mesa, esAdmin, onCerrar }: { mesa: Mesa | null; esAdmi
     URL.revokeObjectURL(a.href)
   }
 
-  function regenerar() {
+  async function regenerar() {
     if (!mesa) return
-    if (window.confirm('Esto invalida el QR impreso de esta mesa: tendrás que imprimir y reemplazar el nuevo. ¿Continuar?')) {
-      regenerarQr.mutate(mesa.id)
-    }
+    const ok = await confirmar({
+      titulo: `Regenerar el QR de la mesa ${mesa.numero}`,
+      mensaje: 'El QR impreso actual deja de funcionar al instante. Vas a tener que imprimir el nuevo y reemplazarlo en la mesa.',
+      confirmar: 'Regenerar QR',
+      tono: 'peligro',
+    })
+    if (ok) regenerarQr.mutate(mesa.id)
   }
 
   return (
-    <Modal abierto={mesa !== null} onCerrar={onCerrar} titulo={mesa ? `QR de la mesa ${mesa.numero}` : ''} ancho="max-w-sm">
+    <Modal abierto={mesa !== null} onCerrar={onCerrar} titulo={mesa ? `QR de la mesa ${mesa.numero}` : ''} descripcion="Lleva a la carta de esta mesa para que el cliente pida." ancho="max-w-sm">
       {mesa && (
         <div className="flex flex-col items-center gap-4">
-          <QrImagen url={url} className="size-60 rounded-xl ring-1 ring-stone-200" />
-          <p className="max-w-full break-all text-center text-xs text-stone-500">{url}</p>
-          {regenerarQr.isError && <p role="alert" className="text-sm text-red-700">{mensajeDeError(regenerarQr.error)}</p>}
+          <QrImagen url={url} className="size-60 rounded-tarjeta border border-borde p-2" />
+          <p className="cifras max-w-full text-center text-xs break-all text-tinta-3">{url}</p>
+          {regenerarQr.isError && <Aviso className="w-full">{mensajeDeError(regenerarQr.error)}</Aviso>}
           <div className="grid w-full grid-cols-2 gap-2">
-            <Boton variante="secundario" onClick={copiar}>{copiado ? '¡Copiado!' : 'Copiar link'}</Boton>
-            <Boton variante="secundario" onClick={descargar}>Descargar SVG</Boton>
-            <Link
-              to={`/mesas/qr?mesa=${mesa.id}`}
-              className="col-span-2 inline-flex h-11 items-center justify-center rounded-lg bg-marca-600 px-4 text-sm font-semibold text-white hover:bg-marca-700"
-            >
+            <Boton variante="secundario" icono={copiado ? IconoExito : IconoCopiar} onClick={copiar}>
+              {copiado ? 'Copiado' : 'Copiar link'}
+            </Boton>
+            <Boton variante="secundario" icono={IconoDescargar} onClick={descargar}>
+              Descargar
+            </Boton>
+            <Link to={`/mesas/qr?mesa=${mesa.id}`} className={estiloBoton('primario', 'md', 'col-span-2 gap-2')}>
+              <Printer aria-hidden size={18} />
               Imprimir este QR
             </Link>
           </div>
           {esAdmin && (
-            <button onClick={regenerar} disabled={regenerarQr.isPending} className="text-xs text-stone-500 underline hover:text-stone-800">
-              Regenerar QR (invalida el impreso)
-            </button>
+            <Boton variante="fantasma" tamano="sm" icono={IconoRegenerar} onClick={regenerar} cargando={regenerarQr.isPending}>
+              Regenerar QR
+            </Boton>
           )}
         </div>
       )}

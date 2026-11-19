@@ -1,0 +1,181 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-11-19T12:00:00Z",
+  "title": "Design System: Savori",
+  "extensions": {
+    "colorMeta": {
+      "fondo": { "role": "neutral", "displayName": "Blanco cálido", "canonical": "#f8f6f3", "tonalRamp": ["#1b1613", "#3a332e", "#5c534c", "#8a8178", "#b8aea6", "#d6cec5", "#e8e2db", "#f8f6f3"] },
+      "superficie": { "role": "neutral", "displayName": "Blanco", "canonical": "#ffffff", "tonalRamp": ["#1b1613", "#3a332e", "#5c534c", "#8a8178", "#d6cec5", "#e8e2db", "#f2eee9", "#ffffff"] },
+      "superficie-2": { "role": "neutral", "displayName": "Blanco hueso", "canonical": "#f2eee9", "tonalRamp": ["#1b1613", "#3a332e", "#5c534c", "#8a8178", "#b8aea6", "#d6cec5", "#e8e2db", "#f2eee9"] },
+      "borde": { "role": "neutral", "displayName": "Borde cálido", "canonical": "#e8e2db", "tonalRamp": ["#1b1613", "#3a332e", "#5c534c", "#8a8178", "#b8aea6", "#d6cec5", "#e8e2db", "#f8f6f3"] },
+      "borde-fuerte": { "role": "neutral", "displayName": "Borde firme", "canonical": "#d6cec5", "tonalRamp": ["#1b1613", "#3a332e", "#5c534c", "#8a8178", "#b8aea6", "#d6cec5", "#e8e2db", "#f8f6f3"] },
+      "tinta": { "role": "neutral", "displayName": "Tinta", "canonical": "#1b1613", "tonalRamp": ["#1b1613", "#2c2420", "#5c534c", "#6b625a", "#8a8178", "#b8aea6", "#e8e2db", "#f8f6f3"] },
+      "tinta-2": { "role": "neutral", "displayName": "Tinta secundaria", "canonical": "#5c534c", "tonalRamp": ["#1b1613", "#2c2420", "#5c534c", "#6b625a", "#8a8178", "#b8aea6", "#e8e2db", "#f8f6f3"] },
+      "tinta-3": { "role": "neutral", "displayName": "Tinta terciaria", "canonical": "#6b625a", "tonalRamp": ["#1b1613", "#2c2420", "#5c534c", "#6b625a", "#8a8178", "#b8aea6", "#e8e2db", "#f8f6f3"] },
+      "marca-500": { "role": "primary", "displayName": "Naranja Savori", "canonical": "#ff5b14", "tonalRamp": ["#7f2805", "#a83507", "#cc4309", "#ff5b14", "#ffa079", "#ffc9ad", "#ffe6d9", "#fff4ec"] },
+      "marca-600": { "role": "primary", "displayName": "Naranja de acción", "canonical": "#cc4309", "tonalRamp": ["#7f2805", "#a83507", "#cc4309", "#ff5b14", "#ffa079", "#ffc9ad", "#ffe6d9", "#fff4ec"] },
+      "marca-700": { "role": "primary", "displayName": "Naranja tinta", "canonical": "#a83507", "tonalRamp": ["#7f2805", "#a83507", "#cc4309", "#ff5b14", "#ffa079", "#ffc9ad", "#ffe6d9", "#fff4ec"] },
+      "marca-800": { "role": "primary", "displayName": "Naranja profundo", "canonical": "#7f2805", "tonalRamp": ["#7f2805", "#a83507", "#cc4309", "#ff5b14", "#ffa079", "#ffc9ad", "#ffe6d9", "#fff4ec"] },
+      "marca-50": { "role": "primary", "displayName": "Naranja suave", "canonical": "#fff4ec", "tonalRamp": ["#7f2805", "#a83507", "#cc4309", "#ff5b14", "#ffa079", "#ffc9ad", "#ffe6d9", "#fff4ec"] },
+      "carbon": { "role": "secondary", "displayName": "Carbón", "canonical": "#1b1613", "tonalRamp": ["#1b1613", "#2c2420", "#3a332e", "#5c534c", "#8a8178", "#b8aea6", "#d6cec5", "#f2eee9"] },
+      "carbon-tinta-2": { "role": "secondary", "displayName": "Texto secundario sobre carbón", "canonical": "#b8aea6", "tonalRamp": ["#1b1613", "#2c2420", "#3a332e", "#5c534c", "#8a8178", "#b8aea6", "#d6cec5", "#f2eee9"] },
+      "exito-500": { "role": "tertiary", "displayName": "Verde servicio", "canonical": "#2e9a5f", "tonalRamp": ["#0f3d25", "#165a36", "#1f7a4a", "#2e9a5f", "#56b884", "#7fd4a4", "#c3ead3", "#e7f4ec"] },
+      "peligro-500": { "role": "tertiary", "displayName": "Rojo alarma", "canonical": "#d92d20", "tonalRamp": ["#5c120c", "#851a12", "#b42318", "#d92d20", "#f06a5e", "#ff9d94", "#fbd0cb", "#fdecea"] }
+    },
+    "typographyMeta": {
+      "display": { "displayName": "Display", "purpose": "La cifra protagonista de una pantalla (ganancia del período en la tarjeta carbón). Una por pantalla." },
+      "headline": { "displayName": "Headline", "purpose": "Título de cada pantalla, login y carta pública; cifras de tarjetas de métricas." },
+      "title-lg": { "displayName": "Title large", "purpose": "Título de diálogos." },
+      "title": { "displayName": "Title", "purpose": "Título de tarjetas y estados vacíos." },
+      "body": { "displayName": "Body", "purpose": "Descripciones y texto de apoyo, máx. 65ch." },
+      "control": { "displayName": "Control", "purpose": "Botones, navegación, pestañas, etiquetas de campo." },
+      "label": { "displayName": "Label", "purpose": "Insignias, contadores, rótulos de grupo, estado de conexión." }
+    },
+    "shadows": [
+      { "name": "flotante", "value": "0 18px 40px -16px rgb(27 22 19 / 0.28), 0 2px 8px -2px rgb(27 22 19 / 0.08)", "purpose": "Solo capas flotantes: diálogos, tooltips del gráfico, mesa arrastrada." },
+      { "name": "control", "value": "0 1px 2px rgb(27 22 19 / 0.06)", "purpose": "Asiento de campos, botón secundario, pestaña activa, perilla del interruptor." },
+      { "name": "foco", "value": "outline: 2px solid #cc4309; outline-offset: 2px", "purpose": "Anillo de foco visible global." },
+      { "name": "halo-campo", "value": "0 0 0 4px rgb(204 67 9 / 0.15)", "purpose": "Foco de campos, junto con borde marca-600." }
+    ],
+    "motion": [
+      { "name": "ease-salida", "value": "cubic-bezier(0.16, 1, 0.3, 1)", "purpose": "Curva para todo lo que entra o se desliza." },
+      { "name": "entrar", "value": "entrar 320ms var(--ease-salida) both", "purpose": "Entrada de contenido desde 6px abajo; con movimiento reducido, solo opacidad." },
+      { "name": "latido", "value": "latido 1.6s ease-in-out 3", "purpose": "El punto de Savori vivo: escala 1.18 tres veces y se detiene; con movimiento reducido, opacidad 0.6." },
+      { "name": "dialogo", "value": "opacity 200ms, transform 260ms var(--ease-salida); desde translateY(10px) scale(0.985)", "purpose": "Entrada y salida de diálogos nativos; con movimiento reducido, sin transform." },
+      { "name": "control", "value": "150ms", "purpose": "Cambios de color en botones, navegación y pestañas; pulsado scale(0.98)." }
+    ],
+    "breakpoints": [
+      { "name": "sm", "value": "640px" },
+      { "name": "md", "value": "768px" },
+      { "name": "lg", "value": "1024px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Botón primario",
+      "kind": "button",
+      "refersTo": "boton-primario",
+      "description": "Acción principal de una zona: naranja de acción con texto blanco.",
+      "html": "<button class=\"ds-btn ds-btn-primario\"><svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.75\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M5 12h14\"/><path d=\"M12 5v14\"/></svg>Nuevo pedido</button>",
+      "css": ".ds-btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 44px; padding: 0 16px; border-radius: 10px; border: none; font-family: Figtree, ui-sans-serif, system-ui, sans-serif; font-size: 0.875rem; font-weight: 600; white-space: nowrap; cursor: pointer; transition: background-color 150ms, color 150ms, transform 150ms; } .ds-btn:active { transform: scale(0.98); } .ds-btn:focus-visible { outline: 2px solid #cc4309; outline-offset: 2px; } .ds-btn-primario { background: #cc4309; color: #ffffff; } .ds-btn-primario:hover { background: #a83507; } .ds-btn-primario:active { background: #7f2805; }"
+    },
+    {
+      "name": "Botón secundario",
+      "kind": "button",
+      "refersTo": "boton-secundario",
+      "description": "Acción alternativa: blanco con borde firme y sombra de control.",
+      "html": "<button class=\"ds-btn2\">Cancelar</button>",
+      "css": ".ds-btn2 { display: inline-flex; align-items: center; height: 44px; padding: 0 16px; border-radius: 10px; border: 1px solid #d6cec5; background: #ffffff; color: #1b1613; box-shadow: 0 1px 2px rgb(27 22 19 / 0.06); font-family: Figtree, ui-sans-serif, system-ui, sans-serif; font-size: 0.875rem; font-weight: 600; cursor: pointer; transition: background-color 150ms, transform 150ms; } .ds-btn2:hover { background: #f2eee9; } .ds-btn2:active { background: #e8e2db; transform: scale(0.98); } .ds-btn2:focus-visible { outline: 2px solid #cc4309; outline-offset: 2px; }"
+    },
+    {
+      "name": "Botón fantasma",
+      "kind": "button",
+      "refersTo": "boton-fantasma",
+      "description": "Acción terciaria sin fondo.",
+      "html": "<button class=\"ds-btn3\">Ver historial</button>",
+      "css": ".ds-btn3 { display: inline-flex; align-items: center; height: 44px; padding: 0 16px; border-radius: 10px; border: none; background: transparent; color: #5c534c; font-family: Figtree, ui-sans-serif, system-ui, sans-serif; font-size: 0.875rem; font-weight: 600; cursor: pointer; transition: background-color 150ms, color 150ms; } .ds-btn3:hover { background: #f2eee9; color: #1b1613; } .ds-btn3:active { background: #e8e2db; } .ds-btn3:focus-visible { outline: 2px solid #cc4309; outline-offset: 2px; }"
+    },
+    {
+      "name": "Botón peligro",
+      "kind": "button",
+      "refersTo": "boton-peligro",
+      "description": "Confirmación de acciones destructivas.",
+      "html": "<button class=\"ds-btn4\">Eliminar mesa</button>",
+      "css": ".ds-btn4 { display: inline-flex; align-items: center; height: 44px; padding: 0 16px; border-radius: 10px; border: none; background: #b42318; color: #ffffff; font-family: Figtree, ui-sans-serif, system-ui, sans-serif; font-size: 0.875rem; font-weight: 600; cursor: pointer; transition: background-color 150ms, transform 150ms; } .ds-btn4:hover { background: #d92d20; } .ds-btn4:active { transform: scale(0.98); } .ds-btn4:focus-visible { outline: 2px solid #cc4309; outline-offset: 2px; }"
+    },
+    {
+      "name": "Campo",
+      "kind": "input",
+      "refersTo": "campo",
+      "description": "Campo de texto con etiqueta semibold y halo naranja al enfocar.",
+      "html": "<label class=\"ds-campo\"><span class=\"ds-campo-etq\">Nombre del producto</span><input class=\"ds-campo-in\" placeholder=\"Milanesa napolitana\"></label>",
+      "css": ".ds-campo { display: flex; flex-direction: column; gap: 6px; font-family: Figtree, ui-sans-serif, system-ui, sans-serif; } .ds-campo-etq { font-size: 0.875rem; font-weight: 600; color: #1b1613; } .ds-campo-in { height: 44px; padding: 0 12px; border-radius: 10px; border: 1px solid #d6cec5; background: #ffffff; color: #1b1613; font: inherit; font-size: 1rem; box-shadow: 0 1px 2px rgb(27 22 19 / 0.06); outline: none; caret-color: #cc4309; transition: border-color 150ms, box-shadow 150ms; } .ds-campo-in::placeholder { color: #6b625a; } .ds-campo-in:hover { border-color: #6b625a; } .ds-campo-in:focus { border-color: #cc4309; box-shadow: 0 0 0 4px rgb(204 67 9 / 0.15); }"
+    },
+    {
+      "name": "Navegación lateral",
+      "kind": "nav",
+      "refersTo": "nav-item",
+      "description": "Ítems de 40px con icono; el activo es una píldora naranja de acción. Contador de alertas de stock en marca.",
+      "html": "<nav class=\"ds-nav\"><p class=\"ds-nav-grupo\">Servicio</p><a class=\"ds-nav-item ds-nav-activo\" href=\"#\"><svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.75\"><rect x=\"3\" y=\"3\" width=\"7\" height=\"7\" rx=\"1\"/><rect x=\"14\" y=\"3\" width=\"7\" height=\"7\" rx=\"1\"/><rect x=\"14\" y=\"14\" width=\"7\" height=\"7\" rx=\"1\"/><rect x=\"3\" y=\"14\" width=\"7\" height=\"7\" rx=\"1\"/></svg>Mesas</a><a class=\"ds-nav-item\" href=\"#\"><svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.75\"><path d=\"M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z\"/></svg>Stock<span class=\"ds-nav-cont\">3</span></a></nav>",
+      "css": ".ds-nav { display: flex; flex-direction: column; gap: 2px; width: 224px; padding: 12px; background: #ffffff; border-right: 1px solid #e8e2db; font-family: Figtree, ui-sans-serif, system-ui, sans-serif; } .ds-nav-grupo { margin: 0 0 6px; padding: 0 12px; font-size: 0.75rem; font-weight: 600; color: #6b625a; } .ds-nav-item { display: flex; align-items: center; gap: 12px; height: 40px; padding: 0 12px; border-radius: 10px; font-size: 0.875rem; font-weight: 600; color: #5c534c; text-decoration: none; transition: background-color 150ms, color 150ms; } .ds-nav-item:hover { background: #f2eee9; color: #1b1613; } .ds-nav-item:focus-visible { outline: 2px solid #cc4309; outline-offset: 2px; } .ds-nav-activo, .ds-nav-activo:hover { background: #cc4309; color: #ffffff; } .ds-nav-cont { margin-left: auto; padding: 2px 6px; border-radius: 9999px; background: #cc4309; color: #ffffff; font-size: 0.75rem; font-weight: 700; line-height: 1; font-variant-numeric: tabular-nums; }"
+    },
+    {
+      "name": "Pestañas",
+      "kind": "nav",
+      "refersTo": "pestana",
+      "description": "Control segmentado de 40px; la activa es blanca y su contador naranja.",
+      "html": "<div class=\"ds-pest\" role=\"tablist\"><button class=\"ds-pest-b ds-pest-act\" role=\"tab\">Activos <span class=\"ds-pest-c ds-pest-cact\">4</span></button><button class=\"ds-pest-b\" role=\"tab\">Entregados <span class=\"ds-pest-c\">12</span></button></div>",
+      "css": ".ds-pest { display: inline-flex; gap: 4px; padding: 4px; border-radius: 12px; background: #f2eee9; font-family: Figtree, ui-sans-serif, system-ui, sans-serif; } .ds-pest-b { display: inline-flex; align-items: center; gap: 8px; height: 40px; padding: 0 14px; border: none; border-radius: 9px; background: transparent; color: #5c534c; font: inherit; font-size: 0.875rem; font-weight: 600; cursor: pointer; transition: background-color 150ms, color 150ms; } .ds-pest-b:hover { color: #1b1613; } .ds-pest-b:focus-visible { outline: 2px solid #cc4309; outline-offset: 2px; } .ds-pest-act { background: #ffffff; color: #1b1613; box-shadow: 0 1px 2px rgb(27 22 19 / 0.06); } .ds-pest-c { min-width: 20px; padding: 2px 6px; border-radius: 9999px; background: #e8e2db; color: #5c534c; font-size: 0.75rem; line-height: 1; font-variant-numeric: tabular-nums; } .ds-pest-cact { background: #cc4309; color: #ffffff; }"
+    },
+    {
+      "name": "Insignia con punto de Savori",
+      "kind": "chip",
+      "refersTo": "insignia-marca",
+      "description": "Estado corto en pastilla; el punto naranja marca lo que está pasando ahora y late tres veces.",
+      "html": "<span class=\"ds-ins ds-ins-marca\"><span class=\"ds-punto\"></span>Pedido nuevo</span> <span class=\"ds-ins ds-ins-exito\"><span class=\"ds-punto ds-punto-exito\"></span>Listo</span>",
+      "css": ".ds-ins { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 9999px; font-family: Figtree, ui-sans-serif, system-ui, sans-serif; font-size: 0.75rem; font-weight: 600; line-height: 1; } .ds-ins-marca { background: #fff4ec; color: #a83507; } .ds-ins-exito { background: #e7f4ec; color: #1f7a4a; } .ds-punto { display: inline-block; width: 6px; height: 6px; border-radius: 9999px; background: #ff5b14; animation: ds-latido 1.6s ease-in-out 3; } .ds-punto-exito { background: #2e9a5f; animation: none; } @keyframes ds-latido { 50% { transform: scale(1.18); } } @media (prefers-reduced-motion: reduce) { @keyframes ds-latido { 50% { opacity: 0.6; } } }"
+    },
+    {
+      "name": "Tarjeta",
+      "kind": "card",
+      "refersTo": "tarjeta",
+      "description": "Superficie blanca con borde fino cálido, sin sombra. Nunca anidada.",
+      "html": "<section class=\"ds-tarj\"><h2 class=\"ds-tarj-t\">Ventas</h2><p class=\"ds-tarj-d\">Últimos 7 días</p><p class=\"ds-tarj-n\">$ 1.284.500</p></section>",
+      "css": ".ds-tarj { padding: 20px; border-radius: 14px; border: 1px solid #e8e2db; background: #ffffff; font-family: Figtree, ui-sans-serif, system-ui, sans-serif; color: #1b1613; } .ds-tarj-t { margin: 0; font-size: 1rem; font-weight: 700; } .ds-tarj-d { margin: 2px 0 0; font-size: 0.875rem; color: #5c534c; } .ds-tarj-n { margin: 16px 0 0; font-size: 1.75rem; font-weight: 700; line-height: 1; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }"
+    },
+    {
+      "name": "Tarjeta destacada carbón",
+      "kind": "card",
+      "refersTo": "tarjeta-destacada",
+      "description": "Un panel carbón por pantalla para la cifra protagonista, con variación por dirección en tonos -300.",
+      "html": "<section class=\"ds-carb\"><p class=\"ds-carb-l\">Ganancia</p><p class=\"ds-carb-n\">$ 486.200</p><span class=\"ds-carb-v\">▲ 12,4 %</span></section>",
+      "css": ".ds-carb { padding: 20px; border-radius: 14px; background: #1b1613; color: #ffffff; font-family: Figtree, ui-sans-serif, system-ui, sans-serif; } .ds-carb-l { margin: 0; font-size: 0.875rem; font-weight: 600; color: #b8aea6; } .ds-carb-n { margin: 8px 0 12px; font-size: 2.75rem; font-weight: 700; line-height: 1; letter-spacing: -0.03em; font-variant-numeric: tabular-nums; } .ds-carb-v { display: inline-flex; padding: 4px 8px; border-radius: 9999px; background: rgb(255 255 255 / 0.1); color: #7fd4a4; font-size: 0.75rem; font-weight: 700; line-height: 1; font-variant-numeric: tabular-nums; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "El pase de la cocina",
+    "overview": "Savori es el pase de un restaurante en pleno servicio: una superficie limpia donde todo está en su lugar y lo único que llama la atención es lo que hay que despachar ya. El blanco cálido ordena; el naranja Savori marca lo que está pasando ahora (una mesa ocupada, un pedido nuevo, la sección en la que estás, una operación por enviar). Si algo es naranja, alguien tiene que mirarlo o tocarlo.\n\nEl sistema es denso pero sereno: una sola familia tipográfica (Figtree) en pesos semibold y bold, cifras siempre tabulares, bordes finos cálidos en lugar de sombras y radios moderados (10 px controles, 14 px tarjetas). La profundidad se reserva para lo que flota. Los iconos son Lucide con un único trazo de 1.75 y animaciones sutiles que se disparan desde el control que los contiene, nunca en bucle. El mismo lenguaje sirve al dueño en la PC, al mozo en el celular, a la cocina en una TV y al cliente en la carta QR.\n\nRechazos confirmados: el dashboard genérico de grises con un acento, el panel oscuro con neón, los degradados y el abuso de sombras. Ningún color compite con el naranja.",
+    "keyCharacteristics": [
+      "Fondo blanco cálido, superficies blancas, bordes cálidos finos.",
+      "Naranja con significado: vivo / ahora, acción principal, navegación activa. Nunca decoración.",
+      "El punto de Savori como lenguaje de estado en toda la app.",
+      "Figtree autoalojada, cifras tabulares en dinero, cantidades y horas.",
+      "Plano por defecto; sombra solo en capas flotantes.",
+      "Objetivos táctiles de 40 px mínimo en la gestión y 44 px en la carta pública.",
+      "Movimiento corto, con salida suave, que cae a opacidad con movimiento reducido."
+    ],
+    "rules": [
+      { "name": "The Naranja Significa Ahora Rule", "body": "El naranja se usa solo para lo que está vivo o pasando ahora, para la acción principal y para la navegación activa. Estados vacíos, avatares, iconos decorativos y encabezados no llevan naranja.", "section": "colors" },
+      { "name": "The Alerta No Es Error Rule", "body": "Las alertas de stock (bajo o agotado) son marca, no peligro: piden atención, no indican una falla. El rojo queda para errores, destrucción y pérdidas.", "section": "colors" },
+      { "name": "The Variación Por Dirección Rule", "body": "Las variaciones de un número se colorean por dirección: exito al alza, peligro a la baja; sobre carbón, sus tonos -300. Sin datos previos, tinta-3 (o carbon-tinta-2) y el texto \"Sin datos previos\".", "section": "colors" },
+      { "name": "The Sin Degradados Rule", "body": "Ningún degradado, en ninguna superficie, botón o gráfico. Los colores son planos.", "section": "colors" },
+      { "name": "The Cifras Tabulares Rule", "body": "Todo dinero, cantidad, hora, contador y número de mesa lleva cifras tabulares. Ninguna cifra se alinea con figuras proporcionales.", "section": "typography" },
+      { "name": "The Sin Mayúsculas Rule", "body": "Los rótulos van en tipo de oración. La única excepción es un código de invitación, que se espacia (0.18em) para dictarlo.", "section": "typography" },
+      { "name": "The Un Solo Contenedor Rule", "body": "Las pantallas de gestión tienen un único contenedor anclado a la izquierda. No se centran con márgenes automáticos.", "section": "layout" },
+      { "name": "The Objetivo Táctil Rule", "body": "Ningún control de la gestión mide menos de 40 px de alto; en la carta pública, 44 px. Las pestañas miden 40 px.", "section": "layout" },
+      { "name": "The Bordes Antes Que Sombras Rule", "body": "Las tarjetas, la barra lateral y los paneles se separan con bordes, nunca con sombra. Si no flota, no tiene sombra flotante.", "section": "elevation" }
+    ],
+    "dos": [
+      "Do reservar el naranja para lo que está vivo o pasando ahora, para la acción primaria (marca-600) y para el ítem activo de la navegación.",
+      "Do marcar el estado con el punto de Savori, y hacerlo latir (tres veces) solo cuando algo acaba de pasar.",
+      "Do separar superficies con bordes de 1 px (borde, borde-fuerte) y dejar la sombra flotante solo para diálogos, tooltips y elementos arrastrados.",
+      "Do usar cifras tabulares en todo dinero, cantidad, hora y número de mesa.",
+      "Do colorear las variaciones por dirección: exito al alza, peligro a la baja, y sus tonos -300 sobre carbón.",
+      "Do mantener objetivos táctiles de 40 px en la gestión y 44 px en la carta pública; pestañas de 40 px.",
+      "Do usar un único contenedor anclado a la izquierda en las pantallas de gestión.",
+      "Do confirmar acciones con `useConfirmar`, nombrando la consecuencia y la acción en el botón.",
+      "Do dejar que el movimiento reducido caiga a opacidad y envolver la app en `MotionConfig reducedMotion=\"user\"`."
+    ],
+    "donts": [
+      "Don't usar degradados en ninguna superficie, botón o gráfico.",
+      "Don't pintar de naranja estados vacíos, avatares, iconos decorativos ni contadores que no sean de alertas o de la pestaña activa.",
+      "Don't usar peligro para las alertas de stock: son marca.",
+      "Don't usar marca-500 para texto ni como fondo de botón con texto blanco; para eso está marca-600.",
+      "Don't poner sombra en tarjetas, paneles o la barra lateral, ni anidar tarjetas.",
+      "Don't centrar las pantallas de gestión con márgenes automáticos.",
+      "Don't usar `window.confirm` ni diálogos del sistema.",
+      "Don't animar en bucle infinito ni desplazar elementos cuando el usuario pidió movimiento reducido.",
+      "Don't introducir un segundo acento que compita con el naranja."
+    ]
+  }
+}

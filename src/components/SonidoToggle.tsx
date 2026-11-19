@@ -1,4 +1,7 @@
 import { useState } from 'react'
+import { BellOff } from 'lucide-react'
+import { IconoNotificacion } from '@/components/iconos'
+import { Boton } from '@/components/ui'
 import { reproducirAviso, setSonidoActivo, sonidoActivo } from '@/lib/sonido'
 
 /** Activa o silencia el aviso sonoro de pedidos nuevos (se recuerda en este dispositivo). */
@@ -11,14 +14,8 @@ export function SonidoToggle() {
     if (nuevo) reproducirAviso() // también "desbloquea" el audio del navegador con este clic
   }
   return (
-    <button
-      type="button"
-      onClick={alternar}
-      aria-pressed={activo}
-      className="inline-flex h-11 items-center gap-2 rounded-lg border border-stone-300 bg-white px-3 text-sm font-medium text-stone-700 hover:bg-stone-100"
-    >
-      <span aria-hidden>{activo ? '🔔' : '🔕'}</span>
-      Sonido {activo ? 'activado' : 'silenciado'}
-    </button>
+    <Boton variante="secundario" icono={activo ? IconoNotificacion : BellOff} onClick={alternar} aria-pressed={activo} title={activo ? 'Silenciar el aviso de pedidos nuevos' : 'Activar el aviso de pedidos nuevos'}>
+      {activo ? 'Sonido activado' : 'Sonido silenciado'}
+    </Boton>
   )
 }

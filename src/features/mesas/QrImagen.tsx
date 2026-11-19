@@ -11,6 +11,6 @@ export function QrImagen({ url, className = 'size-56' }: { url: string; classNam
       </div>
     )
   }
-  if (qr.isError) return <p className="text-sm text-red-700">No se pudo generar el QR.</p>
+  if (qr.isError) return <p className="text-sm text-peligro-600">No se pudo generar el QR.</p>
   return <div role="img" aria-label="Código QR de la carta" className={`${className} [&>svg]:size-full`} dangerouslySetInnerHTML={{ __html: qr.data }} />
 }

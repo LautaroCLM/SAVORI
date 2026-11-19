@@ -1,6 +1,9 @@
 import { useMemo, useState, type FormEvent } from 'react'
+import { ArrowDownToLine, ArrowUpFromLine, Boxes, ClipboardList, Scale } from 'lucide-react'
 import { Modal } from '@/components/Modal'
-import { Boton, Campo, Spinner } from '@/components/ui'
+import { Aviso, Boton, BotonIcono, CargandoSeccion, Campo, EncabezadoPagina, EstadoVacio, Insignia, Interruptor, Pestanas, Tarjeta, type Tono } from '@/components/ui'
+import { IconoConfigurar, IconoConfirmar } from '@/components/iconos'
+import { cn } from '@/lib/utils'
 import { formatearFechaHora } from '@/lib/formato'
 import { mensajeDeError } from '@/lib/errores'
 import { useCategorias, useProductos } from '@/features/carta/useCartaAdmin'
@@ -8,16 +11,16 @@ import type { Producto } from '@/services/carta'
 import { estadoStock, type EstadoStock, type TipoMovimiento } from '@/services/stock'
 import { useMovimientos, useMutacionesStock } from './useStock'
 
-const ESTILO_ESTADO: Record<EstadoStock, { texto: string; clase: string }> = {
-  agotado: { texto: 'Agotado', clase: 'bg-red-100 text-red-800' },
-  bajo: { texto: 'Stock bajo', clase: 'bg-amber-100 text-amber-900' },
-  ok: { texto: 'OK', clase: 'bg-emerald-100 text-emerald-800' },
+const ESTILO_ESTADO: Record<EstadoStock, { texto: string; tono: Tono }> = {
+  agotado: { texto: 'Agotado', tono: 'peligro' },
+  bajo: { texto: 'Stock bajo', tono: 'marca' },
+  ok: { texto: 'En stock', tono: 'exito' },
 }
 
-const TIPOS: { valor: Extract<TipoMovimiento, 'entrada' | 'salida' | 'ajuste'>; etiqueta: string; ayuda: string }[] = [
-  { valor: 'entrada', etiqueta: 'Entrada', ayuda: 'Compra o reposición: suma al stock.' },
-  { valor: 'salida', etiqueta: 'Salida', ayuda: 'Merma, rotura o consumo interno: resta del stock.' },
-  { valor: 'ajuste', etiqueta: 'Conteo', ayuda: 'Indicá cuántas unidades hay realmente: se corrige la diferencia.' },
+const TIPOS: { valor: Extract<TipoMovimiento, 'entrada' | 'salida' | 'ajuste'>; etiqueta: string; ayuda: string; icono: typeof Scale }[] = [
+  { valor: 'entrada', icono: ArrowDownToLine, etiqueta: 'Entrada', ayuda: 'Compra o reposición: suma al stock.' },
+  { valor: 'salida', icono: ArrowUpFromLine, etiqueta: 'Salida', ayuda: 'Merma, rotura o consumo interno: resta del stock.' },
+  { valor: 'ajuste', icono: Scale, etiqueta: 'Conteo', ayuda: 'Indicá cuántas unidades hay realmente: se corrige la diferencia.' },
 ]
 
 const ETIQUETA_MOVIMIENTO: Record<TipoMovimiento, string> = { entrada: 'Entrada', salida: 'Salida', ajuste: 'Ajuste', venta: 'Venta' }
@@ -43,32 +46,44 @@ function FormAjuste({ producto, onCerrar }: { producto: Producto; onCerrar: () =
   }
 
   return (
-    <form onSubmit={enviar} className="flex flex-col gap-4">
-      <p className="text-sm text-stone-600">Stock actual: <b className="tabular-nums">{num(producto.stock_actual)}</b></p>
+    <form onSubmit={enviar} className="flex flex-col gap-5">
       <div role="radiogroup" aria-label="Tipo de movimiento" className="grid grid-cols-3 gap-2">
-        {TIPOS.map((t) => (
-          <button
-            key={t.valor}
-            type="button"
-            role="radio"
-            aria-checked={tipo === t.valor}
-            onClick={() => setTipo(t.valor)}
-            className={`rounded-lg border px-3 py-2.5 text-sm font-semibold transition-colors ${tipo === t.valor ? 'border-marca-600 bg-marca-50 text-marca-700' : 'border-stone-300 text-stone-600 hover:bg-stone-50'}`}
-          >
-            {t.etiqueta}
-          </button>
-        ))}
+        {TIPOS.map((t) => {
+          const Icono = t.icono
+          const activo = tipo === t.valor
+          return (
+            <button
+              key={t.valor}
+              type="button"
+              role="radio"
+              aria-checked={activo}
+              onClick={() => setTipo(t.valor)}
+              className={cn(
+                'flex min-h-16 flex-col items-center justify-center gap-1 rounded-control border text-sm font-semibold transition-colors duration-150',
+                activo ? 'border-marca-600 bg-marca-50 text-marca-800' : 'border-borde-fuerte text-tinta-2 hover:bg-superficie-2 hover:text-tinta',
+              )}
+            >
+              <Icono aria-hidden size={18} />
+              {t.etiqueta}
+            </button>
+          )
+        })}
       </div>
-      <p className="-mt-2 text-xs text-stone-500">{TIPOS.find((t) => t.valor === tipo)?.ayuda}</p>
-      <Campo etiqueta={tipo === 'ajuste' ? 'Unidades contadas' : 'Cantidad'} id="stock-cant" type="number" inputMode="decimal" min={0} step="any" required autoFocus value={cantidad} onChange={(e) => setCantidad(e.target.value)} />
-      <Campo etiqueta="Motivo (opcional)" id="stock-motivo" maxLength={200} placeholder={tipo === 'entrada' ? 'Ej: compra a proveedor' : tipo === 'salida' ? 'Ej: rotura' : 'Ej: inventario de cierre'} value={motivo} onChange={(e) => setMotivo(e.target.value)} />
-      {resultado !== null && (
-        <p className={`rounded-lg px-3 py-2 text-sm ${resultado < 0 ? 'bg-red-50 text-red-700' : 'bg-stone-50 text-stone-700'}`}>
-          {resultado < 0 ? 'No alcanza el stock para esa salida.' : <>Quedaría en <b className="tabular-nums">{num(resultado)}</b></>}
-        </p>
-      )}
-      {registrar.isError && <p role="alert" className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">{mensajeDeError(registrar.error)}</p>}
-      <Boton type="submit" cargando={registrar.isPending} disabled={!valida || (resultado !== null && resultado < 0)}>Registrar</Boton>
+      <p className="-mt-3 text-xs leading-relaxed text-tinta-3">{TIPOS.find((t) => t.valor === tipo)?.ayuda}</p>
+      <Campo etiqueta={tipo === 'ajuste' ? 'Unidades contadas' : 'Cantidad'} id="stock-cant" type="number" inputMode="decimal" min={0} step="any" required autoFocus value={cantidad} onChange={(e) => setCantidad(e.target.value)} className="cifras" />
+      <Campo etiqueta="Motivo" id="stock-motivo" maxLength={200} placeholder={tipo === 'entrada' ? 'Opcional · Ej: compra a proveedor' : tipo === 'salida' ? 'Opcional · Ej: rotura' : 'Opcional · Ej: inventario de cierre'} value={motivo} onChange={(e) => setMotivo(e.target.value)} />
+      <div className="cifras flex items-center justify-between rounded-control bg-superficie-2 px-4 py-3 text-sm">
+        <span className="text-tinta-2">
+          Ahora <b className="text-base text-tinta">{num(producto.stock_actual)}</b>
+        </span>
+        <span aria-live="polite" className={resultado !== null && resultado < 0 ? 'font-semibold text-peligro-600' : 'text-tinta-2'}>
+          {resultado === null ? 'Quedaría en —' : resultado < 0 ? 'No alcanza el stock' : <>Quedaría en <b className="text-base text-tinta">{num(resultado)}</b></>}
+        </span>
+      </div>
+      {registrar.isError && <Aviso>{mensajeDeError(registrar.error)}</Aviso>}
+      <Boton type="submit" icono={IconoConfirmar} cargando={registrar.isPending} disabled={!valida || (resultado !== null && resultado < 0)}>
+        Registrar movimiento
+      </Boton>
     </form>
   )
 }
@@ -91,26 +106,25 @@ function FormConfig({ producto, onCerrar }: { producto: Producto; onCerrar: () =
   }
 
   return (
-    <form onSubmit={enviar} className="flex flex-col gap-4">
-      <label className="flex items-start gap-3 text-sm font-medium text-stone-700">
-        <input type="checkbox" checked={controla} onChange={(e) => setControla(e.target.checked)} className="mt-0.5 size-4 accent-marca-600" />
-        <span>
-          Controlar el stock de este producto
-          <span className="mt-0.5 block text-xs font-normal text-stone-500">
-            Cada venta descuenta unidades automáticamente, el producto se oculta de la carta al agotarse y cancelar un pedido devuelve el stock.
-          </span>
-        </span>
-      </label>
+    <form onSubmit={enviar} className="flex flex-col gap-5">
+      <div>
+        <Interruptor activo={controla} onCambiar={setControla} etiqueta="Controlar el stock de este producto" />
+        <p className="mt-1 text-xs leading-relaxed text-tinta-3">
+          Cada venta descuenta unidades automáticamente, el producto se oculta de la carta al agotarse y cancelar un pedido devuelve el stock.
+        </p>
+      </div>
       {controla && (
         <>
-          <Campo etiqueta="Avisarme cuando queden (stock mínimo)" id="cfg-min" type="number" inputMode="decimal" min={0} step="any" value={minimo} onChange={(e) => setMinimo(e.target.value)} />
-          {primeraVez && <Campo etiqueta="Stock inicial (unidades que hay hoy)" id="cfg-ini" type="number" inputMode="decimal" min={0} step="any" value={inicial} onChange={(e) => setInicial(e.target.value)} />}
-          {primeraVez && Number(inicial || 0) === 0 && <p className="text-xs text-amber-700">Con stock 0 el producto no aparecerá en la carta hasta que cargues una entrada.</p>}
+          <Campo etiqueta="Avisarme cuando queden (stock mínimo)" id="cfg-min" type="number" inputMode="decimal" min={0} step="any" value={minimo} onChange={(e) => setMinimo(e.target.value)} className="cifras" />
+          {primeraVez && <Campo etiqueta="Stock inicial (unidades que hay hoy)" id="cfg-ini" type="number" inputMode="decimal" min={0} step="any" value={inicial} onChange={(e) => setInicial(e.target.value)} className="cifras" />}
+          {primeraVez && Number(inicial || 0) === 0 && <Aviso tono="info">Con stock 0 el producto no aparece en la carta hasta que cargues una entrada.</Aviso>}
         </>
       )}
-      {!controla && producto.controla_stock && <p className="text-xs text-amber-700">Dejará de descontar stock y volverá a mostrarse siempre en la carta (si está disponible).</p>}
-      {configurar.isError && <p role="alert" className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">{mensajeDeError(configurar.error)}</p>}
-      <Boton type="submit" cargando={configurar.isPending}>Guardar</Boton>
+      {!controla && producto.controla_stock && <Aviso tono="info">Deja de descontar stock y vuelve a mostrarse siempre en la carta (si está disponible).</Aviso>}
+      {configurar.isError && <Aviso>{mensajeDeError(configurar.error)}</Aviso>}
+      <Boton type="submit" icono={IconoConfirmar} cargando={configurar.isPending}>
+        Guardar
+      </Boton>
     </form>
   )
 }
@@ -135,97 +149,123 @@ export function StockPage() {
   const agotados = controlados.filter((p) => estadoStock(p) === 'agotado').length
   const bajos = controlados.filter((p) => estadoStock(p) === 'bajo').length
 
-  if (productos.isPending) return <div className="flex justify-center py-20"><Spinner className="size-8" /></div>
-  if (productos.isError) return <p className="rounded-lg bg-red-50 p-4 text-red-700">{mensajeDeError(productos.error)}</p>
+  if (productos.isPending) return <CargandoSeccion />
+  if (productos.isError) return <Aviso titulo="No se pudo cargar el stock">{mensajeDeError(productos.error)}</Aviso>
 
   return (
-    <div className="mx-auto max-w-4xl">
-      <h1 className="text-2xl font-bold text-stone-900">Stock</h1>
-
-      <div role="tablist" className="mt-5 inline-flex rounded-xl bg-stone-200/60 p-1">
-        {(['inventario', 'movimientos'] as const).map((v) => (
-          <button key={v} role="tab" aria-selected={vista === v} onClick={() => setVista(v)} className={`rounded-lg px-4 py-2 text-sm font-semibold transition-colors ${vista === v ? 'bg-white text-stone-900 shadow-sm' : 'text-stone-500 hover:text-stone-800'}`}>
-            {v === 'inventario' ? 'Inventario' : 'Movimientos'}
-          </button>
-        ))}
-      </div>
+    <div className="max-w-5xl">
+      <EncabezadoPagina
+        titulo="Stock"
+        descripcion={controlados.length > 0 ? `${controlados.length} productos controlados · cada venta descuenta automáticamente` : 'Controlá las unidades de los productos que se agotan.'}
+      >
+        <Pestanas
+          className="self-start"
+          etiqueta="Vista de stock"
+          valor={vista}
+          onCambiar={setVista}
+          opciones={[
+            { valor: 'inventario', etiqueta: 'Inventario', contador: agotados + bajos || undefined },
+            { valor: 'movimientos', etiqueta: 'Movimientos' },
+          ]}
+        />
+      </EncabezadoPagina>
 
       {vista === 'inventario' ? (
-        <>
+        <div className="flex flex-col gap-6">
           {(agotados > 0 || bajos > 0) && (
-            <div role="alert" className="mt-5 rounded-xl border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900">
-              <b>Atención:</b> {agotados > 0 && `${agotados} producto${agotados > 1 ? 's' : ''} agotado${agotados > 1 ? 's' : ''}`}
+            <Aviso tono="info" titulo="Hay productos para reponer">
+              {agotados > 0 && `${agotados} agotado${agotados > 1 ? 's' : ''}`}
               {agotados > 0 && bajos > 0 && ' y '}
               {bajos > 0 && `${bajos} con stock bajo`}. Los agotados no aparecen en la carta de los clientes.
-            </div>
+            </Aviso>
           )}
 
           {controlados.length === 0 ? (
-            <div className="mt-6 rounded-xl border border-dashed border-stone-300 bg-white p-10 text-center">
-              <p className="font-semibold text-stone-800">Todavía no controlás el stock de ningún producto</p>
-              <p className="mt-1 text-sm text-stone-500">Activalo en los productos que querés contar (bebidas, postres, cortes limitados…). El resto se vende sin límite.</p>
-            </div>
+            <EstadoVacio
+              icono={Boxes}
+              titulo="Todavía no controlás el stock de ningún producto"
+              descripcion="Activalo en los productos que querés contar (bebidas, postres, cortes limitados…). El resto se vende sin límite."
+            />
           ) : (
-            <ul className="mt-5 divide-y divide-stone-100 overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-stone-200">
-              {ordenados.map((p) => {
-                const e = estadoStock(p)
-                return (
-                  <li key={p.id} className="flex flex-wrap items-center gap-x-4 gap-y-2 p-4">
-                    <div className="min-w-0 flex-1 basis-44">
-                      <p className="font-semibold text-stone-900">{p.nombre}</p>
-                      <p className="text-xs text-stone-500">{nombreCategoria.get(p.categoria_id)} · mínimo {num(p.stock_minimo)}</p>
-                    </div>
-                    <span className={`rounded-full px-2.5 py-1 text-xs font-semibold ${ESTILO_ESTADO[e].clase}`}>{ESTILO_ESTADO[e].texto}</span>
-                    <p className="w-16 text-right text-2xl font-extrabold tabular-nums">{num(p.stock_actual)}</p>
-                    <div className="flex gap-2">
-                      <Boton className="h-9" onClick={() => setDialogo({ tipo: 'ajuste', producto: p })}>Ajustar</Boton>
-                      <Boton variante="secundario" className="h-9" onClick={() => setDialogo({ tipo: 'config', producto: p })}>Configurar</Boton>
-                    </div>
-                  </li>
-                )
-              })}
-            </ul>
+            <Tarjeta sinRelleno>
+              <ul className="divide-y divide-borde">
+                {ordenados.map((p) => {
+                  const e = estadoStock(p)
+                  return (
+                    <li key={p.id} className="flex flex-wrap items-center gap-x-5 gap-y-2 px-5 py-3.5">
+                      <div className="min-w-0 flex-1 basis-44">
+                        <p className="font-semibold">{p.nombre}</p>
+                        <p className="cifras text-xs text-tinta-3">
+                          {nombreCategoria.get(p.categoria_id)} · mínimo {num(p.stock_minimo)}
+                        </p>
+                      </div>
+                      <Insignia tono={ESTILO_ESTADO[e].tono} punto>
+                        {ESTILO_ESTADO[e].texto}
+                      </Insignia>
+                      <p className={cn('cifras w-16 text-right text-2xl font-bold tracking-[-0.02em]', e === 'agotado' && 'text-peligro-600')}>{num(p.stock_actual)}</p>
+                      <div className="flex gap-2">
+                        <Boton tamano="sm" variante="secundario" onClick={() => setDialogo({ tipo: 'ajuste', producto: p })}>
+                          Ajustar
+                        </Boton>
+                        <BotonIcono icono={IconoConfigurar} etiqueta={`Configurar control de ${p.nombre}`} onClick={() => setDialogo({ tipo: 'config', producto: p })} />
+                      </div>
+                    </li>
+                  )
+                })}
+              </ul>
+            </Tarjeta>
           )}
 
           {sinControl.length > 0 && (
-            <section className="mt-8">
-              <h2 className="mb-2 text-sm font-bold tracking-wide text-stone-500 uppercase">Sin control de stock · {sinControl.length}</h2>
-              <ul className="divide-y divide-stone-100 overflow-hidden rounded-xl bg-white ring-1 ring-stone-200">
+            <Tarjeta sinRelleno titulo="Sin control de stock" descripcion={`${sinControl.length} productos se venden sin límite de unidades`}>
+              <ul className="divide-y divide-borde">
                 {sinControl.map((p) => (
-                  <li key={p.id} className="flex items-center gap-3 px-4 py-3">
-                    <p className="min-w-0 flex-1 truncate text-sm text-stone-700">{p.nombre} <span className="text-xs text-stone-400">· {nombreCategoria.get(p.categoria_id)}</span></p>
-                    <Boton variante="secundario" className="h-9" onClick={() => setDialogo({ tipo: 'config', producto: p })}>Controlar stock</Boton>
+                  <li key={p.id} className="flex items-center gap-3 px-5 py-2.5">
+                    <p className="min-w-0 flex-1 truncate text-sm">
+                      {p.nombre} <span className="text-xs text-tinta-3">· {nombreCategoria.get(p.categoria_id)}</span>
+                    </p>
+                    <Boton variante="fantasma" tamano="sm" onClick={() => setDialogo({ tipo: 'config', producto: p })}>
+                      Controlar stock
+                    </Boton>
                   </li>
                 ))}
               </ul>
-            </section>
+            </Tarjeta>
           )}
-        </>
+        </div>
       ) : movimientos.isPending ? (
-        <div className="flex justify-center py-20"><Spinner className="size-8" /></div>
+        <CargandoSeccion />
       ) : movimientos.isError ? (
-        <p className="mt-6 rounded-lg bg-red-50 p-4 text-red-700">{mensajeDeError(movimientos.error)}</p>
+        <Aviso titulo="No se pudieron cargar los movimientos">{mensajeDeError(movimientos.error)}</Aviso>
       ) : movimientos.data.length === 0 ? (
-        <p className="mt-6 rounded-xl border border-dashed border-stone-300 bg-white p-10 text-center text-stone-500">Todavía no hay movimientos de stock.</p>
+        <EstadoVacio icono={ClipboardList} titulo="Todavía no hay movimientos" descripcion="Acá vas a ver cada venta, entrada, salida y conteo de stock." />
       ) : (
-        <ul className="mt-5 divide-y divide-stone-100 overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-stone-200">
-          {movimientos.data.map((m) => (
-            <li key={m.id} className="flex flex-wrap items-center gap-x-4 gap-y-1 px-4 py-3">
-              <div className="min-w-0 flex-1 basis-44">
-                <p className="truncate text-sm font-medium">{m.productos?.nombre ?? 'Producto eliminado'}</p>
-                <p className="text-xs text-stone-500">{ETIQUETA_MOVIMIENTO[m.tipo]}{m.motivo ? ` · ${m.motivo}` : ''}</p>
-              </div>
-              <span className={`text-sm font-bold tabular-nums ${m.cantidad < 0 ? 'text-rose-700' : 'text-emerald-700'}`}>{m.cantidad > 0 ? '+' : ''}{num(m.cantidad)}</span>
-              <span className="w-28 text-right text-xs text-stone-400">{formatearFechaHora(m.created_at)}</span>
-            </li>
-          ))}
-        </ul>
+        <Tarjeta sinRelleno>
+          <ul className="divide-y divide-borde">
+            {movimientos.data.map((m) => (
+              <li key={m.id} className="flex flex-wrap items-center gap-x-5 gap-y-1 px-5 py-3">
+                <div className="min-w-0 flex-1 basis-44">
+                  <p className="truncate text-sm font-semibold">{m.productos?.nombre ?? 'Producto eliminado'}</p>
+                  <p className="text-xs text-tinta-3">
+                    {ETIQUETA_MOVIMIENTO[m.tipo]}
+                    {m.motivo ? ` · ${m.motivo}` : ''}
+                  </p>
+                </div>
+                <span className={cn('cifras text-sm font-bold', m.cantidad < 0 ? 'text-tinta' : 'text-exito-600')}>
+                  {m.cantidad > 0 ? '+' : ''}
+                  {num(m.cantidad)}
+                </span>
+                <span className="cifras w-32 text-right text-xs text-tinta-3">{formatearFechaHora(m.created_at)}</span>
+              </li>
+            ))}
+          </ul>
+        </Tarjeta>
       )}
 
-      <Modal abierto={dialogo?.tipo === 'ajuste'} onCerrar={() => setDialogo(null)} titulo={dialogo ? `Ajustar stock · ${dialogo.producto.nombre}` : ''} ancho="max-w-md">
+      <Modal abierto={dialogo?.tipo === 'ajuste'} onCerrar={() => setDialogo(null)} titulo="Ajustar stock" descripcion={dialogo?.producto.nombre} ancho="max-w-md">
         {dialogo?.tipo === 'ajuste' && <FormAjuste producto={dialogo.producto} onCerrar={() => setDialogo(null)} />}
       </Modal>
-      <Modal abierto={dialogo?.tipo === 'config'} onCerrar={() => setDialogo(null)} titulo={dialogo ? `Control de stock · ${dialogo.producto.nombre}` : ''} ancho="max-w-md">
+      <Modal abierto={dialogo?.tipo === 'config'} onCerrar={() => setDialogo(null)} titulo="Control de stock" descripcion={dialogo?.producto.nombre} ancho="max-w-md">
         {dialogo?.tipo === 'config' && <FormConfig producto={dialogo.producto} onCerrar={() => setDialogo(null)} />}
       </Modal>
     </div>

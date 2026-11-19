@@ -1,16 +1,21 @@
 import { useEffect, useRef, type ReactNode } from 'react'
+import { IconoCerrar } from '@/components/iconos'
+import { BotonIcono } from '@/components/ui/Boton'
+import { cn } from '@/lib/utils'
 
 interface ModalProps {
   abierto: boolean
   onCerrar: () => void
   titulo: string
+  /** Una línea de contexto bajo el título. */
+  descripcion?: ReactNode
   children: ReactNode
   /** Ancho máximo del cuadro (clase Tailwind). */
   ancho?: string
 }
 
-/** Diálogo modal sobre `<dialog>` nativo: foco atrapado, Esc para cerrar y clic afuera. */
-export function Modal({ abierto, onCerrar, titulo, children, ancho = 'max-w-lg' }: ModalProps) {
+/** Diálogo modal sobre `<dialog>` nativo: foco atrapado, Esc para cerrar, clic afuera y transición suave. */
+export function Modal({ abierto, onCerrar, titulo, descripcion, children, ancho = 'max-w-lg' }: ModalProps) {
   const ref = useRef<HTMLDialogElement>(null)
 
   useEffect(() => {
@@ -27,22 +32,16 @@ export function Modal({ abierto, onCerrar, titulo, children, ancho = 'max-w-lg' 
       onClick={(e) => {
         if (e.target === ref.current) onCerrar()
       }}
-      className={`m-auto w-[calc(100%-2rem)] ${ancho} rounded-2xl bg-white p-0 text-stone-900 shadow-xl backdrop:bg-stone-900/50 print:hidden`}
+      className={cn('m-auto w-[calc(100%-2rem)] rounded-tarjeta border border-borde bg-superficie p-0 text-tinta shadow-flotante print:hidden', ancho)}
     >
       {abierto && (
         <div className="p-6">
           <div className="mb-5 flex items-start justify-between gap-4">
-            <h2 className="text-lg font-bold">{titulo}</h2>
-            <button
-              type="button"
-              onClick={onCerrar}
-              aria-label="Cerrar"
-              className="-m-1 rounded-lg p-1 text-stone-400 hover:bg-stone-100 hover:text-stone-700"
-            >
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" className="size-5" aria-hidden>
-                <path d="M6 6l12 12M18 6 6 18" />
-              </svg>
-            </button>
+            <div className="min-w-0">
+              <h2 className="text-lg leading-snug font-bold tracking-[-0.01em]">{titulo}</h2>
+              {descripcion && <p className="mt-1 text-sm leading-relaxed text-tinta-2">{descripcion}</p>}
+            </div>
+            <BotonIcono icono={IconoCerrar} etiqueta="Cerrar" onClick={onCerrar} className="-mt-1.5 -mr-2" />
           </div>
           {children}
         </div>

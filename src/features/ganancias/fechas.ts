@@ -70,3 +70,27 @@ export function etiquetaPeriodo(iso: string, agrupar: Agrupacion): string {
   const base = `${d.getDate()}/${d.getMonth() + 1}`
   return agrupar === 'semana' ? `Sem. ${base}` : base
 }
+
+/** El período inmediatamente anterior, del mismo largo (para comparar). */
+export function rangoAnterior(desde: string, hasta: string): { desde: string; hasta: string } {
+  const dias = Math.round((deISO(hasta).getTime() - deISO(desde).getTime()) / 86_400_000) + 1
+  const fin = sumarDias(deISO(desde), -1)
+  return { desde: aISO(sumarDias(fin, -(dias - 1))), hasta: aISO(fin) }
+}
+
+/** "10 nov" o "10 nov – 18 nov". */
+export function etiquetaRango(desde: string, hasta: string): string {
+  const f = (iso: string) => {
+    const d = deISO(iso)
+    return `${d.getDate()} ${MESES[d.getMonth()]}`
+  }
+  return desde === hasta ? f(desde) : `${f(desde)} – ${f(hasta)}`
+}
+
+/** Etiqueta larga para el tooltip: "lunes 10 nov", "semana del 10 nov", "noviembre 2026". */
+export function etiquetaPeriodoLarga(iso: string, agrupar: Agrupacion): string {
+  const d = deISO(iso)
+  if (agrupar === 'mes') return d.toLocaleDateString('es-AR', { month: 'long', year: 'numeric' })
+  if (agrupar === 'semana') return `Semana del ${d.getDate()} ${MESES[d.getMonth()]}`
+  return d.toLocaleDateString('es-AR', { weekday: 'long', day: 'numeric', month: 'short' })
+}

@@ -1,20 +1,203 @@
 @import 'tailwindcss';
 
-@theme {
-  --font-sans: 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+/* ===========================================================================
+   Savori · sistema de diseño (ver DESIGN.md)
+   Blanco que ordena, naranja que marca lo que está pasando ahora.
+   Sin degradados. Bordes antes que sombras. Contrastes medidos (WCAG AA).
+   =========================================================================== */
 
-  /* Paleta Savori (ver brand/BRAND.md). 500 = marca (gráficos); 600 = acción UI (AA con texto blanco) */
-  --color-marca-50: #fff6ef; /* crema */
-  --color-marca-100: #ffe6d9; /* tinte */
-  --color-marca-500: #ff5b14; /* naranja Savori */
-  --color-marca-600: #cc4309; /* naranja intenso: botones, enlaces, foco */
-  --color-marca-700: #a83507; /* naranja profundo: hover, texto naranja sobre claro */
+/* Figtree autoalojada (variable: un archivo por subconjunto sirve todos los pesos) */
+@font-face {
+  font-family: 'Figtree';
+  font-style: normal;
+  font-weight: 300 900;
+  font-display: swap;
+  src: url('/fonts/figtree-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Figtree';
+  font-style: normal;
+  font-weight: 300 900;
+  font-display: swap;
+  src: url('/fonts/figtree-latin-ext.woff2') format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF;
 }
 
+@theme {
+  --font-sans: 'Figtree', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+
+  /* Superficies (blancos cálidos) */
+  --color-fondo: #f8f6f3; /* fondo de la app */
+  --color-superficie: #ffffff; /* tarjetas, sidebar, inputs */
+  --color-superficie-2: #f2eee9; /* hover, filas alternas, controles secundarios */
+  --color-borde: #e8e2db; /* separadores y bordes de tarjeta */
+  --color-borde-fuerte: #d6cec5; /* bordes de inputs */
+
+  /* Tinta (texto) — contrastes medidos sobre fondo, superficie y superficie-2 */
+  --color-tinta: #1b1613; /* 15,5–17,9:1 */
+  --color-tinta-2: #5c534c; /* secundario 6,5–7,5:1 */
+  --color-tinta-3: #6b625a; /* terciario 5,2–6:1 */
+
+  /* Naranja Savori. 500 = marca y gráficos; 600 = acciones (AA con blanco); 700 = texto naranja */
+  --color-marca-50: #fff4ec;
+  --color-marca-100: #ffe6d9;
+  --color-marca-200: #ffc9ad;
+  --color-marca-300: #ffa079;
+  --color-marca-500: #ff5b14;
+  --color-marca-600: #cc4309;
+  --color-marca-700: #a83507;
+  --color-marca-800: #7f2805;
+
+  /* Carbón (de la marca): panel destacado y textos sobre oscuro */
+  --color-carbon: #1b1613;
+  --color-carbon-2: #2c2420;
+  --color-carbon-tinta-2: #b8aea6; /* secundario sobre carbón 8,2:1 */
+
+  /* Estados: solo donde significan algo. Naranja = "requiere atención / está pasando". */
+  --color-exito-50: #e7f4ec;
+  --color-exito-500: #2e9a5f;
+  --color-exito-300: #7fd4a4;
+  --color-exito-600: #1f7a4a;
+  --color-peligro-50: #fdecea;
+  --color-peligro-500: #d92d20;
+  --color-peligro-300: #ff9d94;
+  --color-peligro-600: #b42318;
+
+  /* Forma */
+  --radius-control: 10px;
+  --radius-tarjeta: 14px;
+
+  /* Profundidad: solo para lo que flota (diálogos, menús, tooltips) */
+  --shadow-flotante: 0 18px 40px -16px rgb(27 22 19 / 0.28), 0 2px 8px -2px rgb(27 22 19 / 0.08);
+  --shadow-control: 0 1px 2px rgb(27 22 19 / 0.06);
+
+  /* Movimiento */
+  --ease-salida: cubic-bezier(0.16, 1, 0.3, 1);
+  --animate-entrar: entrar 320ms var(--ease-salida) both;
+  --animate-latido: latido 1.6s ease-in-out 3; /* finito: llama la atención y se detiene */
+}
+
+@keyframes entrar {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+@keyframes latido {
+  50% {
+    transform: scale(1.18);
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Base y superficies del navegador (también llevan el diseño)
+   --------------------------------------------------------------------------- */
 html {
   -webkit-tap-highlight-color: transparent;
+  color-scheme: light;
 }
 
 body {
-  @apply bg-stone-50 text-stone-900 antialiased;
+  @apply bg-fondo font-sans text-tinta antialiased;
+  font-feature-settings: 'cv11' 1;
+}
+
+::selection {
+  background: var(--color-marca-100);
+  color: var(--color-tinta);
+}
+
+input,
+textarea {
+  caret-color: var(--color-marca-600);
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-marca-600);
+  outline-offset: 2px;
+}
+
+a {
+  text-underline-offset: 3px;
+}
+
+/* Cifras: dinero, cantidades y horas siempre tabulares */
+.cifras {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: 'tnum' 1;
+}
+
+/* Iconos: un solo trazo en todo el sistema (Lucide y Lucide Animated) */
+.icono svg,
+svg.lucide {
+  stroke-width: 1.75;
+}
+
+/* Scrollbars finos y cálidos */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-borde-fuerte) transparent;
+}
+
+/* Diálogos nativos: entrada y salida suaves */
+dialog {
+  opacity: 0;
+  transform: translateY(10px) scale(0.985);
+  transition:
+    opacity 200ms var(--ease-salida),
+    transform 260ms var(--ease-salida),
+    overlay 260ms allow-discrete,
+    display 260ms allow-discrete;
+}
+dialog[open] {
+  opacity: 1;
+  transform: none;
+}
+@starting-style {
+  dialog[open] {
+    opacity: 0;
+    transform: translateY(10px) scale(0.985);
+  }
+}
+dialog::backdrop {
+  background: rgb(27 22 19 / 0);
+  transition:
+    background 220ms var(--ease-salida),
+    overlay 260ms allow-discrete,
+    display 260ms allow-discrete;
+}
+dialog[open]::backdrop {
+  background: rgb(27 22 19 / 0.42);
+}
+@starting-style {
+  dialog[open]::backdrop {
+    background: rgb(27 22 19 / 0);
+  }
+}
+
+/* Movimiento reducido: se conservan los cambios de estado (opacidad), sin desplazamientos */
+@media (prefers-reduced-motion: reduce) {
+  dialog,
+  dialog[open] {
+    transform: none;
+  }
+  @keyframes entrar {
+    from {
+      opacity: 0;
+    }
+  }
+  @keyframes latido {
+    50% {
+      opacity: 0.6;
+    }
+  }
+}
+
+/* Carriles horizontales táctiles (categorías): se desplazan con el dedo, sin barra visible. */
+.sin-barra {
+  scrollbar-width: none;
+}
+.sin-barra::-webkit-scrollbar {
+  display: none;
 }

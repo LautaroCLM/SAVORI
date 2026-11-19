@@ -33,3 +33,16 @@ export function haceCuanto(desde: string | Date, ahora: number = Date.now()): st
 export function minutosDesde(desde: string | Date, ahora: number = Date.now()): number {
   return Math.max(0, Math.floor((ahora - new Date(desde).getTime()) / 60_000))
 }
+
+const formatoCompacto = new Intl.NumberFormat('es-AR', { notation: 'compact', maximumFractionDigits: 1 })
+
+/** 1250000 → "$ 1,3 M" (ejes de gráficos). */
+export function formatearPrecioCompacto(valor: number): string {
+  return `$ ${formatoCompacto.format(valor)}`
+}
+
+/** Variación porcentual con signo: 0.184 → "+18,4 %". */
+export function formatearVariacion(fraccion: number): string {
+  const n = new Intl.NumberFormat('es-AR', { maximumFractionDigits: 1, minimumFractionDigits: 1 }).format(Math.abs(fraccion * 100))
+  return `${fraccion > 0 ? '+' : fraccion < 0 ? '−' : ''}${n} %`
+}

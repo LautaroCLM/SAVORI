@@ -1,6 +1,7 @@
 import { useMemo, useState, type FormEvent } from 'react'
 import { Modal } from '@/components/Modal'
-import { Boton } from '@/components/ui'
+import { Aviso, Boton, CargandoSeccion, Campo, ControlCantidad, Selector } from '@/components/ui'
+import { IconoEnviar } from '@/components/iconos'
 import { formatearPrecio } from '@/lib/formato'
 import { mensajeDeError } from '@/lib/errores'
 import { useCategorias, useProductos } from '@/features/carta/useCartaAdmin'
@@ -18,7 +19,7 @@ interface Props {
 /** Carga de un pedido por el mozo: elegir mesa, cantidades por producto y notas. */
 export function NuevoPedidoModal({ abierto, onCerrar, mesas, mesaFija }: Props) {
   return (
-    <Modal abierto={abierto} onCerrar={onCerrar} titulo={mesaFija ? `Nuevo pedido · Mesa ${mesaFija.numero}` : 'Nuevo pedido'} ancho="max-w-2xl">
+    <Modal abierto={abierto} onCerrar={onCerrar} titulo="Nuevo pedido" descripcion={mesaFija ? `Mesa ${mesaFija.numero}` : 'Elegí la mesa y los productos'} ancho="max-w-2xl">
       {abierto && <Formulario onCerrar={onCerrar} mesas={mesas} mesaFija={mesaFija ?? null} />}
     </Modal>
   )
@@ -51,39 +52,41 @@ function Formulario({ onCerrar, mesas, mesaFija }: { onCerrar: () => void; mesas
     crear.mutate({ mesaId, items, notas }, { onSuccess: onCerrar })
   }
 
+  const cargando = categorias.isPending || productos.isPending
+
   return (
-    <form onSubmit={enviar} className="flex flex-col gap-4">
+    <form onSubmit={enviar} className="flex flex-col gap-5">
       {!mesaFija && (
-        <label className="flex flex-col gap-1.5 text-sm font-medium text-stone-700">
-          Mesa
-          <select value={mesaId} onChange={(e) => setMesaId(e.target.value)} className="h-11 rounded-lg border border-stone-300 bg-white px-3 text-base outline-none focus:border-marca-600">
-            {mesas.map((m) => (
-              <option key={m.id} value={m.id}>Mesa {m.numero}{m.estado === 'ocupada' ? ' (ocupada)' : ''}</option>
-            ))}
-          </select>
-        </label>
+        <Selector etiqueta="Mesa" id="np-mesa" value={mesaId} onChange={(e) => setMesaId(e.target.value)}>
+          {mesas.map((m) => (
+            <option key={m.id} value={m.id}>
+              Mesa {m.numero}
+              {m.estado === 'ocupada' ? ' (ocupada)' : ''}
+            </option>
+          ))}
+        </Selector>
       )}
 
-      <div className="max-h-[45dvh] overflow-y-auto rounded-xl border border-stone-200">
-        {grupos.length === 0 && <p className="p-6 text-center text-sm text-stone-500">No hay productos disponibles. Cargalos en la sección Carta.</p>}
+      <div className="max-h-[45dvh] overflow-y-auto rounded-control border border-borde">
+        {cargando && <CargandoSeccion />}
+        {!cargando && grupos.length === 0 && <p className="p-6 text-center text-sm text-tinta-2">No hay productos disponibles. Cargalos en la sección Carta.</p>}
         {grupos.map((g) => (
           <section key={g.categoria.id}>
-            <h3 className="sticky top-0 bg-stone-50 px-4 py-2 text-xs font-bold tracking-wide text-stone-500 uppercase">{g.categoria.nombre}</h3>
-            <ul className="divide-y divide-stone-100">
+            <h3 className="sticky top-0 z-[1] border-b border-borde bg-superficie-2 px-4 py-2 text-sm font-bold text-tinta-2">{g.categoria.nombre}</h3>
+            <ul className="divide-y divide-borde">
               {g.productos.map((p) => {
                 const c = cantidades[p.id] ?? 0
                 const tope = p.controla_stock ? Math.min(50, p.stock_actual) : 50
                 return (
-                  <li key={p.id} className="flex items-center gap-3 px-4 py-2.5">
+                  <li key={p.id} className={c > 0 ? 'flex items-center gap-3 bg-marca-50/60 px-4 py-2' : 'flex items-center gap-3 px-4 py-2'}>
                     <div className="min-w-0 flex-1">
-                      <p className="truncate text-sm font-medium">{p.nombre}</p>
-                      <p className="text-xs text-stone-500 tabular-nums">{formatearPrecio(p.precio)}{p.controla_stock && <span className={p.stock_actual <= 0 ? ' font-semibold text-red-700' : ''}> · {p.stock_actual <= 0 ? 'sin stock' : `quedan ${p.stock_actual}`}</span>}</p>
+                      <p className="truncate text-sm font-semibold">{p.nombre}</p>
+                      <p className="cifras text-xs text-tinta-3">
+                        {formatearPrecio(p.precio)}
+                        {p.controla_stock && <span className={p.stock_actual <= 0 ? 'font-semibold text-peligro-600' : ''}> · {p.stock_actual <= 0 ? 'sin stock' : `quedan ${p.stock_actual}`}</span>}
+                      </p>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <button type="button" onClick={() => cambiar(p.id, -1)} disabled={c === 0} aria-label={`Quitar ${p.nombre}`} className="size-9 rounded-lg border border-stone-300 text-lg leading-none hover:bg-stone-100 disabled:opacity-30">−</button>
-                      <span className="w-6 text-center font-semibold tabular-nums">{c}</span>
-                      <button type="button" onClick={() => cambiar(p.id, 1)} disabled={c >= tope} aria-label={`Agregar ${p.nombre}`} className="size-9 rounded-lg border border-stone-300 text-lg leading-none hover:bg-stone-100 disabled:opacity-30">+</button>
-                    </div>
+                    <ControlCantidad cantidad={c} nombre={p.nombre} tope={tope} onCambiar={(d) => cambiar(p.id, d)} />
                   </li>
                 )
               })}
@@ -92,16 +95,18 @@ function Formulario({ onCerrar, mesas, mesaFija }: { onCerrar: () => void; mesas
         ))}
       </div>
 
-      <label className="flex flex-col gap-1.5 text-sm font-medium text-stone-700">
-        Notas del pedido (opcional)
-        <input value={notas} onChange={(e) => setNotas(e.target.value)} maxLength={300} placeholder="Ej: sin sal, para compartir" className="h-11 rounded-lg border border-stone-300 bg-white px-3 text-base outline-none focus:border-marca-600" />
-      </label>
+      <Campo etiqueta="Notas del pedido" id="np-notas" value={notas} onChange={(e) => setNotas(e.target.value)} maxLength={300} placeholder="Opcional · Ej: sin sal, para compartir" />
 
-      {crear.isError && <p role="alert" className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">{mensajeDeError(crear.error)}</p>}
+      {crear.isError && <Aviso>{mensajeDeError(crear.error)}</Aviso>}
 
-      <div className="flex items-center justify-between gap-3">
-        <p className="text-sm text-stone-600">Total estimado: <b className="tabular-nums">{formatearPrecio(total)}</b></p>
-        <Boton type="submit" cargando={crear.isPending} disabled={items.length === 0 || !mesaId}>Enviar a cocina</Boton>
+      <div className="flex flex-wrap items-center justify-between gap-3 border-t border-borde pt-4">
+        <p className="text-sm text-tinta-2">
+          {items.length > 0 ? `${items.reduce((s, i) => s + i.cantidad, 0)} productos · ` : ''}
+          Total <b className="cifras text-lg text-tinta">{formatearPrecio(total)}</b>
+        </p>
+        <Boton type="submit" icono={IconoEnviar} cargando={crear.isPending} disabled={items.length === 0 || !mesaId}>
+          Enviar a cocina
+        </Boton>
       </div>
     </form>
   )

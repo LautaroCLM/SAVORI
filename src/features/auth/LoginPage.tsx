@@ -1,12 +1,30 @@
-import { useState, type FormEvent } from 'react'
+import { useState, type FormEvent, type ReactNode } from 'react'
 import { Navigate, useLocation, useNavigate } from 'react-router-dom'
 import { useMutation } from '@tanstack/react-query'
 import { iniciarSesion } from '@/services/auth'
 import { mensajeDeError } from '@/lib/errores'
-import { Boton, Campo, PantallaCargando } from '@/components/ui'
+import { Aviso, Boton, BotonIcono, Campo, PantallaCargando } from '@/components/ui'
+import { IconoMostrar, IconoOcultar } from '@/components/iconos'
 import { Logo } from '@/components/Logo'
 import { OfflineBanner } from '@/components/OfflineBanner'
 import { useAuth } from './AuthProvider'
+
+/** Marco común de las pantallas sin sesión (ingreso y primer ingreso). */
+export function MarcoAcceso({ titulo, descripcion, ancho = 'max-w-sm', children }: { titulo: string; descripcion: string; ancho?: string; children: ReactNode }) {
+  return (
+    <>
+      <OfflineBanner />
+      <main className="flex min-h-dvh items-center justify-center bg-fondo p-4">
+        <div className={`w-full ${ancho} motion-safe:animate-entrar`}>
+          <Logo className="h-10" />
+          <h1 className="mt-8 text-[1.75rem] leading-tight font-bold tracking-[-0.02em] text-tinta">{titulo}</h1>
+          <p className="mt-1.5 text-sm text-tinta-2">{descripcion}</p>
+          <div className="mt-6 rounded-tarjeta border border-borde bg-superficie p-6">{children}</div>
+        </div>
+      </main>
+    </>
+  )
+}
 
 export function LoginPage() {
   const { session, cargando } = useAuth()
@@ -16,6 +34,7 @@ export function LoginPage() {
 
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [verClave, setVerClave] = useState(false)
 
   const login = useMutation({
     mutationFn: () => iniciarSesion(email, password),
@@ -31,46 +50,32 @@ export function LoginPage() {
   }
 
   return (
-    <>
-      <OfflineBanner />
-      <main className="flex min-h-dvh items-center justify-center bg-stone-100 p-4">
-        <div className="w-full max-w-sm">
-          <div className="mb-8 text-center">
-            <Logo className="mx-auto h-11" />
-            <h1 className="mt-6 text-2xl font-bold text-stone-900">Ingresá a tu restaurante</h1>
-            <p className="mt-1 text-sm text-stone-500">Usá el email y la contraseña que te dieron.</p>
-          </div>
-
-          <form onSubmit={enviar} className="flex flex-col gap-4 rounded-2xl bg-white p-6 shadow-sm ring-1 ring-stone-200">
-            <Campo
-              etiqueta="Email"
-              id="email"
-              type="email"
-              autoComplete="username"
-              required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-            />
-            <Campo
-              etiqueta="Contraseña"
-              id="password"
-              type="password"
-              autoComplete="current-password"
-              required
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
-            {login.isError && (
-              <p role="alert" className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">
-                {mensajeDeError(login.error)}
-              </p>
-            )}
-            <Boton type="submit" cargando={login.isPending} className="mt-2">
-              Ingresar
-            </Boton>
-          </form>
+    <MarcoAcceso titulo="Ingresá a tu restaurante" descripcion="Usá el email y la contraseña que te dieron.">
+      <form onSubmit={enviar} className="flex flex-col gap-5">
+        <Campo etiqueta="Email" id="email" type="email" autoComplete="username" required value={email} onChange={(e) => setEmail(e.target.value)} />
+        <div className="relative">
+          <Campo
+            etiqueta="Contraseña"
+            id="password"
+            type={verClave ? 'text' : 'password'}
+            autoComplete="current-password"
+            required
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            className="pr-12"
+          />
+          <BotonIcono
+            icono={verClave ? IconoOcultar : IconoMostrar}
+            etiqueta={verClave ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+            onClick={() => setVerClave((v) => !v)}
+            className="absolute right-0.5 bottom-0.5"
+          />
         </div>
-      </main>
-    </>
+        {login.isError && <Aviso>{mensajeDeError(login.error)}</Aviso>}
+        <Boton type="submit" tamano="lg" cargando={login.isPending}>
+          Ingresar
+        </Boton>
+      </form>
+    </MarcoAcceso>
   )
 }

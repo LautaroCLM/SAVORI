@@ -1,4 +1,6 @@
-import { Boton, Spinner } from '@/components/ui'
+import { CookingPot } from 'lucide-react'
+import { Aviso, Boton, CargandoSeccion, EncabezadoPagina, Punto, type Tono } from '@/components/ui'
+import { IconoEmpezar, IconoListo } from '@/components/iconos'
 import { SonidoToggle } from '@/components/SonidoToggle'
 import { useAhora } from '@/hooks/useAhora'
 import { mensajeDeError } from '@/lib/errores'
@@ -6,42 +8,44 @@ import { PedidoCard } from '@/features/pedidos/PedidoCard'
 import { useMutacionesPedidos, usePedidosActivos } from '@/features/pedidos/usePedidos'
 import type { EstadoPedido } from '@/services/pedidos'
 
-const COLUMNAS: { estado: EstadoPedido; titulo: string; vacio: string; color: string }[] = [
-  { estado: 'pendiente', titulo: 'Pendientes', vacio: 'Sin pedidos nuevos', color: 'bg-amber-500' },
-  { estado: 'en_preparacion', titulo: 'En preparación', vacio: 'Nada en preparación', color: 'bg-sky-500' },
-  { estado: 'listo', titulo: 'Listos', vacio: 'Nada listo todavía', color: 'bg-emerald-500' },
+const COLUMNAS: { estado: EstadoPedido; titulo: string; vacio: string; tono: Tono }[] = [
+  { estado: 'pendiente', titulo: 'Pendientes', vacio: 'Sin pedidos nuevos', tono: 'marca' },
+  { estado: 'en_preparacion', titulo: 'En preparación', vacio: 'Nada en preparación', tono: 'neutro' },
+  { estado: 'listo', titulo: 'Listos', vacio: 'Nada esperando al mozo', tono: 'exito' },
 ]
 
-/** Pantalla de cocina: tres columnas que se actualizan solas. Pensada para una tablet o TV. */
+/** Pantalla de cocina: tres carriles que se actualizan solos. Pensada para tablet o TV, mirada a distancia. */
 export function CocinaPage() {
   const ahora = useAhora(15_000)
   const pedidos = usePedidosActivos()
   const { cambiarEstado } = useMutacionesPedidos()
 
-  if (pedidos.isPending) return <div className="flex justify-center py-20"><Spinner className="size-8" /></div>
-  if (pedidos.isError) return <p className="rounded-lg bg-red-50 p-4 text-red-700">{mensajeDeError(pedidos.error)}</p>
+  if (pedidos.isPending) return <CargandoSeccion />
+  if (pedidos.isError) return <Aviso titulo="No se pudieron cargar los pedidos">{mensajeDeError(pedidos.error)}</Aviso>
 
   const cambiar = (id: string, estado: EstadoPedido) => cambiarEstado.mutate({ id, estado })
 
   return (
-    <div className="mx-auto max-w-[110rem]">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <h1 className="text-2xl font-bold text-stone-900">Cocina</h1>
-        <SonidoToggle />
-      </div>
-      {cambiarEstado.isError && <p role="alert" className="mt-3 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">{mensajeDeError(cambiarEstado.error)}</p>}
+    <div className="max-w-[110rem]">
+      <EncabezadoPagina titulo="Cocina" descripcion="Los pedidos entran solos. Más de 15 minutos esperando se marca en rojo." acciones={<SonidoToggle />} />
+      {cambiarEstado.isError && <Aviso className="mb-4">{mensajeDeError(cambiarEstado.error)}</Aviso>}
 
-      <div className="mt-5 grid gap-5 lg:grid-cols-3">
-        {COLUMNAS.map(({ estado, titulo, vacio, color }) => {
+      <div className="grid gap-6 lg:grid-cols-3">
+        {COLUMNAS.map(({ estado, titulo, vacio, tono }) => {
           const items = pedidos.data.filter((p) => p.estado === estado)
           return (
-            <section key={estado} aria-label={titulo} className="flex flex-col gap-3 rounded-2xl bg-stone-100 p-3">
-              <h2 className="flex items-center gap-2 px-1 text-sm font-bold tracking-wide text-stone-700 uppercase">
-                <span className={`size-2.5 rounded-full ${color}`} aria-hidden />
+            <section key={estado} aria-label={titulo} className="flex flex-col gap-3">
+              <h2 className="flex items-center gap-2 border-b-2 border-borde pb-2 text-base font-bold text-tinta">
+                <Punto tono={tono} className="size-2.5" />
                 {titulo}
-                <span className="ml-auto rounded-full bg-white px-2 py-0.5 text-xs tabular-nums">{items.length}</span>
+                <span className="cifras ml-auto text-sm font-bold text-tinta-3">{items.length}</span>
               </h2>
-              {items.length === 0 && <p className="rounded-xl border border-dashed border-stone-300 p-6 text-center text-sm text-stone-400">{vacio}</p>}
+              {items.length === 0 && (
+                <p className="flex items-center justify-center gap-2 rounded-tarjeta border border-dashed border-borde-fuerte px-4 py-8 text-sm text-tinta-3">
+                  <CookingPot aria-hidden size={16} />
+                  {vacio}
+                </p>
+              )}
               {items.map((p) => (
                 <PedidoCard
                   key={p.id}
@@ -51,11 +55,15 @@ export function CocinaPage() {
                   mostrarTotal={false}
                   acciones={
                     estado === 'pendiente' ? (
-                      <Boton className="h-12 px-6 text-base" onClick={() => cambiar(p.id, 'en_preparacion')}>Empezar</Boton>
+                      <Boton tamano="lg" icono={IconoEmpezar} onClick={() => cambiar(p.id, 'en_preparacion')}>
+                        Empezar
+                      </Boton>
                     ) : estado === 'en_preparacion' ? (
-                      <Boton className="h-12 px-6 text-base" onClick={() => cambiar(p.id, 'listo')}>Marcar listo</Boton>
+                      <Boton tamano="lg" icono={IconoListo} onClick={() => cambiar(p.id, 'listo')}>
+                        Marcar listo
+                      </Boton>
                     ) : (
-                      <span className="text-sm font-medium text-emerald-700">Esperando al mozo</span>
+                      <span className="text-sm font-semibold text-exito-600">Esperando al mozo</span>
                     )
                   }
                 />

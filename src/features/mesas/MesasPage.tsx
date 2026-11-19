@@ -1,8 +1,11 @@
 import { useState, type FormEvent } from 'react'
 import { Link } from 'react-router-dom'
+import { Armchair, LayoutGrid, Printer, QrCode, Trash2 } from 'lucide-react'
 import { useUsuario } from '@/features/auth/useContexto'
 import { Modal } from '@/components/Modal'
-import { Boton, Campo, Spinner } from '@/components/ui'
+import { useConfirmar } from '@/components/Confirmar'
+import { Aviso, Boton, BotonIcono, CargandoSeccion, Campo, EncabezadoPagina, EstadoVacio, Insignia, Pestanas, Punto, Selector, estiloBoton } from '@/components/ui'
+import { IconoAgregar, IconoConfirmar, IconoEditar } from '@/components/iconos'
 import { mensajeDeError } from '@/lib/errores'
 import type { Mesa, Salon } from '@/services/mesas'
 import { NuevoPedidoModal } from '@/features/pedidos/NuevoPedidoModal'
@@ -28,11 +31,13 @@ function FormSalon({ inicial, onGuardar, guardando, error }: { inicial?: Salon; 
         e.preventDefault()
         onGuardar(nombre.trim())
       }}
-      className="flex flex-col gap-4"
+      className="flex flex-col gap-5"
     >
-      <Campo etiqueta="Nombre del salón" id="salon-nombre" required maxLength={60} autoFocus value={nombre} onChange={(e) => setNombre(e.target.value)} />
-      {error != null && <p role="alert" className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">{mensajeDeError(error)}</p>}
-      <Boton type="submit" cargando={guardando}>Guardar</Boton>
+      <Campo etiqueta="Nombre del salón" id="salon-nombre" required maxLength={60} autoFocus placeholder="Ej: Salón principal, Patio, Terraza" value={nombre} onChange={(e) => setNombre(e.target.value)} />
+      {error != null && <Aviso>{mensajeDeError(error)}</Aviso>}
+      <Boton type="submit" icono={IconoConfirmar} cargando={guardando}>
+        Guardar
+      </Boton>
     </form>
   )
 }
@@ -71,30 +76,30 @@ function FormMesa({
         e.preventDefault()
         onGuardar({ salon_id: salonId, numero: Number(numero), capacidad: Number(capacidad), forma })
       }}
-      className="flex flex-col gap-4"
+      className="flex flex-col gap-5"
     >
       <div className="grid grid-cols-2 gap-3">
-        <Campo etiqueta="Número de mesa" id="mesa-numero" type="number" min={1} step={1} required autoFocus value={numero} onChange={(e) => setNumero(e.target.value)} />
-        <Campo etiqueta="Capacidad (personas)" id="mesa-capacidad" type="number" min={1} step={1} required value={capacidad} onChange={(e) => setCapacidad(e.target.value)} />
+        <Campo etiqueta="Número de mesa" id="mesa-numero" type="number" min={1} step={1} required autoFocus value={numero} onChange={(e) => setNumero(e.target.value)} className="cifras" />
+        <Campo etiqueta="Personas" id="mesa-capacidad" type="number" min={1} step={1} required value={capacidad} onChange={(e) => setCapacidad(e.target.value)} className="cifras" />
       </div>
-      <label className="flex flex-col gap-1.5 text-left text-sm font-medium text-stone-700">
-        Salón
-        <select value={salonId} onChange={(e) => setSalonId(e.target.value)} className="h-11 rounded-lg border border-stone-300 bg-white px-3 text-base outline-none focus:border-marca-600">
-          {salones.map((s) => (
-            <option key={s.id} value={s.id}>{s.nombre}</option>
-          ))}
-        </select>
-      </label>
-      <label className="flex flex-col gap-1.5 text-left text-sm font-medium text-stone-700">
-        Forma
-        <select value={forma} onChange={(e) => setForma(e.target.value as Forma)} className="h-11 rounded-lg border border-stone-300 bg-white px-3 text-base outline-none focus:border-marca-600">
-          {FORMAS.map((f) => (
-            <option key={f.valor} value={f.valor}>{f.etiqueta}</option>
-          ))}
-        </select>
-      </label>
-      {error != null && <p role="alert" className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">{mensajeDeError(error)}</p>}
-      <Boton type="submit" cargando={guardando}>Guardar</Boton>
+      <Selector etiqueta="Salón" id="mesa-salon" value={salonId} onChange={(e) => setSalonId(e.target.value)}>
+        {salones.map((s) => (
+          <option key={s.id} value={s.id}>
+            {s.nombre}
+          </option>
+        ))}
+      </Selector>
+      <Selector etiqueta="Forma" id="mesa-forma" value={forma} onChange={(e) => setForma(e.target.value as Forma)}>
+        {FORMAS.map((f) => (
+          <option key={f.valor} value={f.valor}>
+            {f.etiqueta}
+          </option>
+        ))}
+      </Selector>
+      {error != null && <Aviso>{mensajeDeError(error)}</Aviso>}
+      <Boton type="submit" icono={IconoConfirmar} cargando={guardando}>
+        Guardar
+      </Boton>
     </form>
   )
 }
@@ -107,6 +112,7 @@ export function MesasPage() {
   const salones = useSalones()
   const mesas = useMesas()
   const m = useMutacionesMesas()
+  const confirmar = useConfirmar()
   const [seleccion, setSeleccion] = useState<string | null>(null)
   const [dialogo, setDialogo] = useState<Dialogo>(null)
   const [qrDe, setQrDe] = useState<Mesa | null>(null)
@@ -119,8 +125,8 @@ export function MesasPage() {
   const sesiones = useSesionesAbiertas()
   const mover = useMoverMesa()
 
-  if (salones.isPending || mesas.isPending) return <div className="flex justify-center py-20"><Spinner className="size-8" /></div>
-  if (salones.isError || mesas.isError) return <p className="rounded-lg bg-red-50 p-4 text-red-700">{mensajeDeError(salones.error ?? mesas.error)}</p>
+  if (salones.isPending || mesas.isPending) return <CargandoSeccion />
+  if (salones.isError || mesas.isError) return <Aviso titulo="No se pudieron cargar las mesas">{mensajeDeError(salones.error ?? mesas.error)}</Aviso>
 
   const sal = salones.data
   const mes = mesas.data
@@ -142,100 +148,143 @@ export function MesasPage() {
   }
   const elegida = mes.find((x) => x.id === elegidaId) ?? null
   const errorAccion = m.eliminarMesa.error ?? m.eliminarSalon.error ?? m.actualizarMesa.error
+  const ocupadas = mesasActual.filter((x) => x.estado === 'ocupada').length
+  const listos = mesasActual.reduce((s, x) => s + (info[x.id]?.listos ?? 0), 0)
 
-  function borrarSalon(s: Salon) {
+  async function borrarSalon(s: Salon) {
     const cantidad = mes.filter((x) => x.salon_id === s.id).length
-    const aviso = cantidad > 0 ? `Se van a eliminar también sus ${cantidad} mesa(s) y sus QR. ` : ''
-    if (window.confirm(`${aviso}¿Eliminar el salón "${s.nombre}"?`)) {
-      m.eliminarSalon.mutate(s.id, { onSuccess: () => setSeleccion(null) })
-    }
+    const ok = await confirmar({
+      titulo: `Eliminar el salón "${s.nombre}"`,
+      mensaje: cantidad > 0 ? `También se eliminan sus ${cantidad} mesa(s) y sus QR impresos dejan de funcionar.` : 'El salón no tiene mesas.',
+      confirmar: 'Eliminar salón',
+      tono: 'peligro',
+    })
+    if (ok) m.eliminarSalon.mutate(s.id, { onSuccess: () => setSeleccion(null) })
   }
 
-  function borrarMesa(x: Mesa) {
-    if (window.confirm(`¿Eliminar la mesa ${x.numero}? Su QR dejará de funcionar.`)) m.eliminarMesa.mutate(x.id)
+  async function borrarMesa(x: Mesa) {
+    const ok = await confirmar({ titulo: `Eliminar la mesa ${x.numero}`, mensaje: 'Su QR impreso deja de funcionar. Si la mesa tiene pedidos registrados, no se puede eliminar.', confirmar: 'Eliminar mesa', tono: 'peligro' })
+    if (ok) m.eliminarMesa.mutate(x.id)
   }
 
   return (
-    <div className="mx-auto max-w-5xl">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <h1 className="text-2xl font-bold text-stone-900">Mesas</h1>
-        <div className="flex flex-wrap gap-2">
-          <div role="tablist" className="inline-flex rounded-xl bg-stone-200/60 p-1">
-            {(['mapa', 'lista'] as const).map((v) => (
-              <button
-                key={v}
-                role="tab"
-                aria-selected={vista === v}
-                onClick={() => { setVista(v); setEditando(false) }}
-                className={`rounded-lg px-4 text-sm font-semibold transition-colors ${vista === v ? 'bg-white text-stone-900 shadow-sm' : 'text-stone-500 hover:text-stone-800'}`}
-              >
-                {v === 'mapa' ? 'Mapa' : 'Lista'}
-              </button>
-            ))}
-          </div>
-          {vista === 'mapa' && esAdmin && mesasActual.length > 0 && (
-            <Boton variante={editando ? 'primario' : 'secundario'} onClick={() => { setEditando(!editando); setElegidaId(null) }}>
-              {editando ? 'Listo' : 'Editar mapa'}
-            </Boton>
-          )}
-          {mes.length > 0 && (
-            <Link to="/mesas/qr" className="inline-flex h-11 items-center rounded-lg border border-stone-300 bg-white px-4 text-sm font-semibold text-stone-700 hover:bg-stone-100">
-              Imprimir todos los QR
-            </Link>
-          )}
-          {esAdmin && <Boton variante="secundario" onClick={() => setDialogo({ tipo: 'salon' })}>+ Salón</Boton>}
-          {esAdmin && actual && <Boton onClick={() => setDialogo({ tipo: 'mesa' })}>+ Mesa</Boton>}
-        </div>
-      </div>
-      {errorAccion != null && <p role="alert" className="mt-3 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">{mensajeDeError(errorAccion)}</p>}
+    <div className="max-w-6xl">
+      <EncabezadoPagina
+        titulo="Mesas"
+        descripcion={
+          actual && mesasActual.length > 0 ? (
+            <span className="cifras inline-flex flex-wrap items-center gap-x-4 gap-y-1">
+              <span className="inline-flex items-center gap-1.5">
+                <Punto tono="exito" /> {mesasActual.length - ocupadas} libres
+              </span>
+              <span className="inline-flex items-center gap-1.5">
+                <Punto tono="marca" /> {ocupadas} ocupadas
+              </span>
+              {listos > 0 && (
+                <span className="inline-flex items-center gap-1.5 font-semibold text-exito-600">
+                  <Punto tono="exito" vivo /> {listos} {listos === 1 ? 'pedido listo' : 'pedidos listos'} para llevar
+                </span>
+              )}
+            </span>
+          ) : (
+            'El salón en vivo: tocá una mesa para ver su cuenta, cargar pedidos o cobrar.'
+          )
+        }
+        acciones={
+          <>
+            {mes.length > 0 && (
+              <Link to="/mesas/qr" className={estiloBoton('secundario', 'md', 'gap-2')}>
+                <Printer aria-hidden size={18} />
+                Imprimir QR
+              </Link>
+            )}
+            {esAdmin && (
+              <Boton variante="secundario" icono={IconoAgregar} onClick={() => setDialogo({ tipo: 'salon' })}>
+                Salón
+              </Boton>
+            )}
+            {esAdmin && actual && (
+              <Boton icono={IconoAgregar} onClick={() => setDialogo({ tipo: 'mesa' })}>
+                Mesa
+              </Boton>
+            )}
+          </>
+        }
+      />
+
+      {errorAccion != null && <Aviso className="mb-4">{mensajeDeError(errorAccion)}</Aviso>}
 
       {sal.length === 0 ? (
-        <div className="mt-6 rounded-xl border border-dashed border-stone-300 bg-white p-10 text-center">
-          <p className="font-semibold text-stone-800">Todavía no hay salones</p>
-          <p className="mt-1 text-sm text-stone-500">
-            {esAdmin ? 'Creá un salón (por ejemplo "Salón principal" o "Patio") y cargá sus mesas.' : 'Pedile al administrador que cargue los salones y mesas.'}
-          </p>
-          {esAdmin && <Boton className="mt-4" onClick={() => setDialogo({ tipo: 'salon' })}>Crear salón</Boton>}
-        </div>
+        <EstadoVacio
+          icono={Armchair}
+          titulo="Todavía no hay salones"
+          descripcion={esAdmin ? 'Creá un salón (por ejemplo "Salón principal" o "Patio") y después cargá sus mesas.' : 'Pedile al administrador que cargue los salones y mesas.'}
+          accion={
+            esAdmin && (
+              <Boton icono={IconoAgregar} onClick={() => setDialogo({ tipo: 'salon' })}>
+                Crear salón
+              </Boton>
+            )
+          }
+        />
       ) : (
         <>
-          <div role="tablist" className="mt-6 flex gap-2 overflow-x-auto overflow-y-hidden border-b border-stone-200">
-            {sal.map((s) => (
-              <button
-                key={s.id}
-                role="tab"
-                aria-selected={s.id === actual?.id}
-                onClick={() => setSeleccion(s.id)}
-                className={`-mb-px shrink-0 border-b-2 px-4 py-2.5 text-sm font-semibold transition-colors ${
-                  s.id === actual?.id ? 'border-marca-600 text-marca-600' : 'border-transparent text-stone-500 hover:text-stone-800'
-                }`}
-              >
-                {s.nombre}
-              </button>
-            ))}
+          <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+            <div className="flex min-w-0 flex-wrap items-center gap-2">
+              {sal.length > 1 && <Pestanas etiqueta="Salón" valor={actual?.id ?? ''} onCambiar={(v) => setSeleccion(v)} opciones={sal.map((s) => ({ valor: s.id, etiqueta: s.nombre }))} />}
+              {sal.length === 1 && actual && <h2 className="text-lg font-bold">{actual.nombre}</h2>}
+              {actual && esAdmin && (
+                <div className="flex">
+                  <BotonIcono icono={IconoEditar} etiqueta={`Renombrar el salón ${actual.nombre}`} onClick={() => setDialogo({ tipo: 'salon', editar: actual })} />
+                  <BotonIcono icono={Trash2} tono="peligro" etiqueta={`Eliminar el salón ${actual.nombre}`} onClick={() => borrarSalon(actual)} />
+                </div>
+              )}
+            </div>
+            <div className="flex flex-wrap items-center gap-2">
+              {vista === 'mapa' && esAdmin && mesasActual.length > 0 && (
+                <Boton
+                  variante={editando ? 'primario' : 'secundario'}
+                  tamano="sm"
+                  icono={editando ? IconoConfirmar : IconoEditar}
+                  onClick={() => {
+                    setEditando(!editando)
+                    setElegidaId(null)
+                  }}
+                >
+                  {editando ? 'Terminar edición' : 'Editar plano'}
+                </Boton>
+              )}
+              <Pestanas
+                etiqueta="Vista"
+                valor={vista}
+                onCambiar={(v) => {
+                  setVista(v)
+                  setEditando(false)
+                }}
+                opciones={[
+                  { valor: 'mapa', etiqueta: 'Plano' },
+                  { valor: 'lista', etiqueta: 'Lista' },
+                ]}
+              />
+            </div>
           </div>
 
-          {actual && esAdmin && (
-            <div className="mt-3 flex gap-2 text-sm">
-              <button onClick={() => setDialogo({ tipo: 'salon', editar: actual })} className="text-stone-500 underline hover:text-stone-800">Renombrar salón</button>
-              <button onClick={() => borrarSalon(actual)} className="text-stone-500 underline hover:text-stone-800">Eliminar salón</button>
-            </div>
-          )}
-
           {mesasActual.length === 0 ? (
-            <p className="mt-6 rounded-xl border border-dashed border-stone-300 bg-white p-8 text-center text-sm text-stone-500">Este salón todavía no tiene mesas.</p>
+            <EstadoVacio
+              icono={LayoutGrid}
+              titulo="Este salón todavía no tiene mesas"
+              descripcion={esAdmin ? 'Agregá las mesas y después acomodalas en el plano como están en el local.' : undefined}
+              accion={
+                esAdmin && (
+                  <Boton icono={IconoAgregar} onClick={() => setDialogo({ tipo: 'mesa' })}>
+                    Agregar mesa
+                  </Boton>
+                )
+              }
+            />
           ) : vista === 'mapa' ? (
-            <div className="mt-5">
-              {editando ? (
-                <p className="mb-3 rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-900">Modo edición: arrastrá las mesas para acomodarlas y tocá una para cambiar su tamaño, giro o forma.</p>
-              ) : (
-                <p className="mb-3 flex flex-wrap gap-x-4 gap-y-1 text-xs text-stone-500">
-                  <span><b className="text-emerald-700">●</b> Libre</span>
-                  <span><b className="text-rose-600">●</b> Ocupada (muestra el total de la cuenta)</span>
-                  <span><b className="text-amber-500">●</b> Con pedidos en curso</span>
-                  <span><b className="text-emerald-600">✓</b> Pedido listo para entregar</span>
-                </p>
-              )}
+            <div>
+              {editando && <Aviso tono="info" className="mb-3">Arrastrá las mesas para acomodarlas y tocá una para cambiar su tamaño, giro o forma.</Aviso>}
               <MapaSalon
                 mesas={mesasActual}
                 info={info}
@@ -244,30 +293,35 @@ export function MesasPage() {
                 onSeleccionar={(x) => (editando ? setElegidaId(x.id) : setPanelDe(x))}
                 onMover={(x, px, py) => mover.mutate({ id: x.id, x: px, y: py })}
               />
-              {mover.isError && <p role="alert" className="mt-3 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">{mensajeDeError(mover.error)}</p>}
-              {editando && elegida && elegida.salon_id === actual?.id && (
-                <EditorMesa mesa={elegida} onCambiar={(cambios) => m.actualizarMesa.mutate({ id: elegida.id, cambios })} />
-              )}
+              {mover.isError && <Aviso className="mt-3">{mensajeDeError(mover.error)}</Aviso>}
+              {editando && elegida && elegida.salon_id === actual?.id && <EditorMesa mesa={elegida} onCambiar={(cambios) => m.actualizarMesa.mutate({ id: elegida.id, cambios })} />}
             </div>
-          ) : (            <ul className="mt-5 grid grid-cols-[repeat(auto-fill,minmax(15rem,1fr))] gap-4">
-              {mesasActual.map((x) => (
-                <li key={x.id} className="flex flex-col gap-3 rounded-xl bg-white p-4 shadow-sm ring-1 ring-stone-200">
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <p className="text-lg font-bold">Mesa {x.numero}</p>
-                      <p className="text-sm text-stone-500">{x.capacidad} personas · {FORMAS.find((f) => f.valor === x.forma)?.etiqueta.toLowerCase()}</p>
+          ) : (
+            <ul className="overflow-hidden rounded-tarjeta border border-borde bg-superficie">
+              {mesasActual.map((x) => {
+                const ocupada = x.estado === 'ocupada'
+                return (
+                  <li key={x.id} className="flex flex-wrap items-center gap-x-4 gap-y-2 border-b border-borde px-5 py-3.5 last:border-b-0">
+                    <button type="button" onClick={() => setPanelDe(x)} className="flex min-w-0 flex-1 basis-48 items-center gap-4 text-left">
+                      <span className="cifras flex size-11 shrink-0 items-center justify-center rounded-control bg-superficie-2 text-lg font-bold">{x.numero}</span>
+                      <span className="min-w-0">
+                        <span className="block font-semibold">Mesa {x.numero}</span>
+                        <span className="text-sm text-tinta-3">
+                          {x.capacidad} personas · {FORMAS.find((f) => f.valor === x.forma)?.etiqueta.toLowerCase()}
+                        </span>
+                      </span>
+                    </button>
+                    <Insignia tono={ocupada ? 'marca' : 'exito'} punto>
+                      {ocupada ? 'Ocupada' : 'Libre'}
+                    </Insignia>
+                    <div className="flex">
+                      <BotonIcono icono={QrCode} etiqueta={`Ver el QR de la mesa ${x.numero}`} onClick={() => setQrDe(x)} />
+                      {esAdmin && <BotonIcono icono={IconoEditar} etiqueta={`Editar la mesa ${x.numero}`} onClick={() => setDialogo({ tipo: 'mesa', editar: x })} />}
+                      {esAdmin && <BotonIcono icono={Trash2} tono="peligro" etiqueta={`Eliminar la mesa ${x.numero}`} onClick={() => borrarMesa(x)} />}
                     </div>
-                    <span className={`rounded-full px-2.5 py-1 text-xs font-semibold ${x.estado === 'ocupada' ? 'bg-red-100 text-red-800' : 'bg-emerald-100 text-emerald-800'}`}>
-                      {x.estado === 'ocupada' ? 'Ocupada' : 'Libre'}
-                    </span>
-                  </div>
-                  <div className="flex flex-wrap gap-2">
-                    <Boton className="h-9" onClick={() => setQrDe(x)}>Ver QR</Boton>
-                    {esAdmin && <Boton variante="secundario" className="h-9" onClick={() => setDialogo({ tipo: 'mesa', editar: x })}>Editar</Boton>}
-                    {esAdmin && <Boton variante="secundario" className="h-9" onClick={() => borrarMesa(x)}>Eliminar</Boton>}
-                  </div>
-                </li>
-              ))}
+                  </li>
+                )
+              })}
             </ul>
           )}
         </>
@@ -291,7 +345,7 @@ export function MesasPage() {
         )}
       </Modal>
 
-      <Modal abierto={dialogo?.tipo === 'mesa'} onCerrar={cerrar} titulo={dialogo?.tipo === 'mesa' && dialogo.editar ? 'Editar mesa' : 'Nueva mesa'}>
+      <Modal abierto={dialogo?.tipo === 'mesa'} onCerrar={cerrar} titulo={dialogo?.tipo === 'mesa' && dialogo.editar ? `Editar la mesa ${dialogo.editar.numero}` : 'Nueva mesa'}>
         {dialogo?.tipo === 'mesa' && actual && (
           <FormMesa
             inicial={dialogo.editar}
@@ -304,7 +358,15 @@ export function MesasPage() {
               if (dialogo.editar) {
                 m.actualizarMesa.mutate({ id: dialogo.editar.id, cambios: d }, { onSuccess: cerrar })
               } else {
-                m.crearMesa.mutate({ restaurante_id: usuario.restaurante_id, ...d }, { onSuccess: () => { setSeleccion(d.salon_id); cerrar() } })
+                m.crearMesa.mutate(
+                  { restaurante_id: usuario.restaurante_id, ...d },
+                  {
+                    onSuccess: () => {
+                      setSeleccion(d.salon_id)
+                      cerrar()
+                    },
+                  },
+                )
               }
             }}
           />

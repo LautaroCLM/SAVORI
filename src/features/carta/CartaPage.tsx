@@ -1,7 +1,11 @@
 import { useState, type FormEvent } from 'react'
 import { useUsuario } from '@/features/auth/useContexto'
 import { Modal } from '@/components/Modal'
-import { Boton, Campo, Spinner } from '@/components/ui'
+import { BookOpen, EyeOff, Trash2 } from 'lucide-react'
+import { useConfirmar } from '@/components/Confirmar'
+import { AreaTexto, Aviso, Boton, BotonIcono, CargandoSeccion, Campo, EncabezadoPagina, EstadoVacio, Interruptor, Selector, Tarjeta } from '@/components/ui'
+import { IconoAgregar, IconoBajar, IconoConfirmar, IconoEditar, IconoMostrar, IconoOcultar, IconoSubir } from '@/components/iconos'
+import { cn } from '@/lib/utils'
 import { formatearPrecio } from '@/lib/formato'
 import { mensajeDeError } from '@/lib/errores'
 import type { Categoria, Producto } from '@/services/carta'
@@ -26,10 +30,12 @@ function FormCategoria({
     onGuardar(nombre.trim())
   }
   return (
-    <form onSubmit={enviar} className="flex flex-col gap-4">
-      <Campo etiqueta="Nombre de la categoría" id="cat-nombre" required maxLength={60} autoFocus value={nombre} onChange={(e) => setNombre(e.target.value)} />
-      {error != null && <p role="alert" className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">{mensajeDeError(error)}</p>}
-      <Boton type="submit" cargando={guardando}>Guardar</Boton>
+    <form onSubmit={enviar} className="flex flex-col gap-5">
+      <Campo etiqueta="Nombre de la categoría" id="cat-nombre" required maxLength={60} autoFocus placeholder="Ej: Entradas, Pastas, Bebidas" value={nombre} onChange={(e) => setNombre(e.target.value)} />
+      {error != null && <Aviso>{mensajeDeError(error)}</Aviso>}
+      <Boton type="submit" icono={IconoConfirmar} cargando={guardando}>
+        Guardar
+      </Boton>
     </form>
   )
 }
@@ -78,41 +84,26 @@ function FormProducto({
   }
 
   return (
-    <form onSubmit={enviar} className="flex flex-col gap-4">
+    <form onSubmit={enviar} className="flex flex-col gap-5">
       <Campo etiqueta="Nombre" id="prod-nombre" required maxLength={80} autoFocus value={nombre} onChange={(e) => setNombre(e.target.value)} />
-      <label className="flex flex-col gap-1.5 text-left text-sm font-medium text-stone-700">
-        Descripción (opcional)
-        <textarea
-          rows={2}
-          maxLength={200}
-          value={descripcion}
-          onChange={(e) => setDescripcion(e.target.value)}
-          className="rounded-lg border border-stone-300 bg-white px-3 py-2 text-base outline-none transition focus:border-marca-600 focus:ring-2 focus:ring-marca-600/20"
-        />
-      </label>
-      <label className="flex flex-col gap-1.5 text-left text-sm font-medium text-stone-700">
-        Categoría
-        <select
-          value={categoriaId}
-          onChange={(e) => setCategoriaId(e.target.value)}
-          className="h-11 rounded-lg border border-stone-300 bg-white px-3 text-base outline-none focus:border-marca-600"
-        >
-          {categorias.map((c) => (
-            <option key={c.id} value={c.id}>{c.nombre}</option>
-          ))}
-        </select>
-      </label>
+      <AreaTexto etiqueta="Descripción" id="prod-desc" maxLength={200} placeholder="Opcional: ingredientes, porción, acompañamiento" value={descripcion} onChange={(e) => setDescripcion(e.target.value)} />
+      <Selector etiqueta="Categoría" id="prod-cat" value={categoriaId} onChange={(e) => setCategoriaId(e.target.value)}>
+        {categorias.map((c) => (
+          <option key={c.id} value={c.id}>
+            {c.nombre}
+          </option>
+        ))}
+      </Selector>
       <div className="grid grid-cols-2 gap-3">
-        <Campo etiqueta="Precio de venta ($)" id="prod-precio" type="number" inputMode="decimal" min={0} step="any" required value={precio} onChange={(e) => setPrecio(e.target.value)} />
-        <Campo etiqueta="Costo ($)" id="prod-costo" type="number" inputMode="decimal" min={0} step="any" value={costo} onChange={(e) => setCosto(e.target.value)} />
+        <Campo etiqueta="Precio de venta ($)" id="prod-precio" type="number" inputMode="decimal" min={0} step="any" required value={precio} onChange={(e) => setPrecio(e.target.value)} className="cifras" />
+        <Campo etiqueta="Costo ($)" id="prod-costo" type="number" inputMode="decimal" min={0} step="any" value={costo} onChange={(e) => setCosto(e.target.value)} className="cifras" />
       </div>
-      <p className="-mt-2 text-xs text-stone-500">El costo es interno: no aparece en la carta de los clientes. Se usa para calcular ganancias.</p>
-      <label className="flex items-center gap-2 text-sm font-medium text-stone-700">
-        <input type="checkbox" checked={disponible} onChange={(e) => setDisponible(e.target.checked)} className="size-4 accent-marca-600" />
-        Disponible en la carta
-      </label>
-      {error != null && <p role="alert" className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">{mensajeDeError(error)}</p>}
-      <Boton type="submit" cargando={guardando}>Guardar</Boton>
+      <p className="-mt-3 text-xs leading-relaxed text-tinta-3">El costo es interno: no aparece en la carta de los clientes. Se usa para calcular las ganancias.</p>
+      <Interruptor activo={disponible} onCambiar={setDisponible} etiqueta="Disponible en la carta" />
+      {error != null && <Aviso>{mensajeDeError(error)}</Aviso>}
+      <Boton type="submit" icono={IconoConfirmar} cargando={guardando}>
+        Guardar
+      </Boton>
     </form>
   )
 }
@@ -131,12 +122,11 @@ export function CartaPage() {
   const m = useMutacionesCarta()
   const [seleccion, setSeleccion] = useState<string | null>(null)
   const [dialogo, setDialogo] = useState<Dialogo>(null)
+  const confirmar = useConfirmar()
 
-  if (categorias.isPending || productos.isPending) {
-    return <div className="flex justify-center py-20"><Spinner className="size-8" /></div>
-  }
+  if (categorias.isPending || productos.isPending) return <CargandoSeccion />
   if (categorias.isError || productos.isError) {
-    return <p className="rounded-lg bg-red-50 p-4 text-red-700">{mensajeDeError(categorias.error ?? productos.error)}</p>
+    return <Aviso titulo="No se pudo cargar la carta">{mensajeDeError(categorias.error ?? productos.error)}</Aviso>
   }
 
   const cats = categorias.data
@@ -158,52 +148,81 @@ export function CartaPage() {
     })
   }
 
-  function borrarCategoria(c: Categoria) {
+  async function borrarCategoria(c: Categoria) {
     const cantidad = prods.filter((p) => p.categoria_id === c.id).length
     if (cantidad > 0) {
-      window.alert(`"${c.nombre}" tiene ${cantidad} producto(s). Movelos o eliminalos antes de borrar la categoría.`)
+      await confirmar({
+        titulo: `"${c.nombre}" todavía tiene productos`,
+        mensaje: `Tiene ${cantidad} producto(s). Movelos a otra categoría o eliminalos antes de borrarla.`,
+        confirmar: 'Entendido',
+        cancelar: 'Cerrar',
+      })
       return
     }
-    if (window.confirm(`¿Eliminar la categoría "${c.nombre}"?`)) m.eliminarCategoria.mutate(c.id)
+    if (await confirmar({ titulo: `Eliminar la categoría "${c.nombre}"`, mensaje: 'La categoría está vacía; se quita de la carta.', confirmar: 'Eliminar categoría', tono: 'peligro' })) {
+      m.eliminarCategoria.mutate(c.id)
+    }
   }
 
-  function borrarProducto(p: Producto) {
-    if (window.confirm(`¿Eliminar "${p.nombre}"? Los pedidos anteriores conservan su registro.`)) m.eliminarProducto.mutate(p.id)
+  async function borrarProducto(p: Producto) {
+    const ok = await confirmar({
+      titulo: `Eliminar "${p.nombre}"`,
+      mensaje: 'Sale de la carta y del stock. Los pedidos y las ganancias anteriores conservan su registro. Si solo querés pausarlo, apagá "Disponible".',
+      confirmar: 'Eliminar producto',
+      tono: 'peligro',
+    })
+    if (ok) m.eliminarProducto.mutate(p.id)
   }
 
   const errorAccion = m.actualizarCategoria.error ?? m.eliminarCategoria.error ?? m.actualizarProducto.error ?? m.eliminarProducto.error
 
+  const disponibles = prods.filter((p) => p.disponible).length
+
   return (
-    <div className="mx-auto max-w-5xl">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <h1 className="text-2xl font-bold text-stone-900">Carta</h1>
-        <Boton onClick={() => setDialogo({ tipo: 'categoria' })}>+ Categoría</Boton>
-      </div>
-      {errorAccion != null && <p role="alert" className="mt-3 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">{mensajeDeError(errorAccion)}</p>}
+    <div className="max-w-6xl">
+      <EncabezadoPagina
+        titulo="Carta"
+        descripcion={cats.length > 0 ? `${prods.length} productos en ${cats.length} categorías · ${disponibles} disponibles para los clientes` : 'Lo que ven tus clientes al escanear el QR de la mesa.'}
+        acciones={
+          <Boton variante="secundario" icono={IconoAgregar} onClick={() => setDialogo({ tipo: 'categoria' })}>
+            Categoría
+          </Boton>
+        }
+      />
+      {errorAccion != null && <Aviso className="mb-4">{mensajeDeError(errorAccion)}</Aviso>}
 
       {cats.length === 0 ? (
-        <div className="mt-6 rounded-xl border border-dashed border-stone-300 bg-white p-10 text-center">
-          <p className="font-semibold text-stone-800">Todavía no hay categorías</p>
-          <p className="mt-1 text-sm text-stone-500">Creá la primera (por ejemplo "Entradas" o "Bebidas") y después cargá sus productos.</p>
-          <Boton className="mt-4" onClick={() => setDialogo({ tipo: 'categoria' })}>Crear categoría</Boton>
-        </div>
+        <EstadoVacio
+          icono={BookOpen}
+          titulo="Tu carta está vacía"
+          descripcion='Creá la primera categoría (por ejemplo "Entradas" o "Bebidas") y después cargá sus productos.'
+          accion={
+            <Boton icono={IconoAgregar} onClick={() => setDialogo({ tipo: 'categoria' })}>
+              Crear categoría
+            </Boton>
+          }
+        />
       ) : (
-        <div className="mt-6 grid gap-6 md:grid-cols-[16rem_1fr]">
+        <div className="grid gap-6 md:grid-cols-[15rem_1fr]">
           {/* Categorías */}
-          <nav aria-label="Categorías" className="flex gap-2 overflow-x-auto md:flex-col md:overflow-visible">
+          <nav aria-label="Categorías" className="-mx-1 flex gap-1 overflow-x-auto px-1 pb-1 md:mx-0 md:flex-col md:overflow-visible md:px-0">
             {cats.map((c) => {
               const cantidad = prods.filter((p) => p.categoria_id === c.id).length
               const activa = c.id === actual?.id
               return (
                 <button
                   key={c.id}
+                  type="button"
                   onClick={() => setSeleccion(c.id)}
-                  className={`flex shrink-0 items-center justify-between gap-3 rounded-xl border px-4 py-3 text-left text-sm transition-colors md:shrink ${
-                    activa ? 'border-marca-600 bg-marca-50 font-semibold text-stone-900' : 'border-stone-200 bg-white text-stone-700 hover:bg-stone-50'
-                  }`}
+                  aria-current={activa ? 'true' : undefined}
+                  className={cn(
+                    'flex h-11 shrink-0 items-center gap-2 rounded-control px-3 text-left text-sm font-semibold transition-colors md:shrink',
+                    activa ? 'bg-marca-50 text-marca-800' : 'text-tinta-2 hover:bg-superficie-2 hover:text-tinta',
+                  )}
                 >
-                  <span className={c.activa ? '' : 'text-stone-400 line-through'}>{c.nombre}</span>
-                  <span className="rounded-full bg-stone-100 px-2 py-0.5 text-xs text-stone-500">{cantidad}</span>
+                  {!c.activa && <EyeOff aria-label="Oculta" size={15} className="shrink-0 text-tinta-3" />}
+                  <span className={cn('min-w-0 flex-1 truncate', !c.activa && 'text-tinta-3')}>{c.nombre}</span>
+                  <span className={cn('cifras rounded-full px-2 py-0.5 text-xs', activa ? 'bg-marca-100 text-marca-800' : 'bg-superficie-2 text-tinta-3')}>{cantidad}</span>
                 </button>
               )
             })}
@@ -211,55 +230,61 @@ export function CartaPage() {
 
           {/* Productos de la categoría */}
           {actual && (
-            <section className="min-w-0">
-              <div className="flex flex-wrap items-center gap-2">
-                <h2 className="mr-auto text-lg font-bold">{actual.nombre}</h2>
-                <Boton variante="secundario" className="h-9" onClick={() => moverCategoria(actual, -1)} aria-label="Mover categoría hacia arriba" disabled={cats[0]?.id === actual.id}>↑</Boton>
-                <Boton variante="secundario" className="h-9" onClick={() => moverCategoria(actual, 1)} aria-label="Mover categoría hacia abajo" disabled={cats[cats.length - 1]?.id === actual.id}>↓</Boton>
-                <Boton variante="secundario" className="h-9" onClick={() => m.actualizarCategoria.mutate({ id: actual.id, cambios: { activa: !actual.activa } })}>
-                  {actual.activa ? 'Ocultar' : 'Mostrar'}
-                </Boton>
-                <Boton variante="secundario" className="h-9" onClick={() => setDialogo({ tipo: 'categoria', editar: actual })}>Renombrar</Boton>
-                <Boton variante="secundario" className="h-9" onClick={() => borrarCategoria(actual)}>Eliminar</Boton>
-              </div>
-              {!actual.activa && <p className="mt-2 text-sm text-amber-700">Categoría oculta: los clientes no la ven en la carta.</p>}
-
-              <div className="mt-4 flex justify-end">
-                <Boton onClick={() => setDialogo({ tipo: 'producto' })}>+ Producto</Boton>
-              </div>
-
+            <Tarjeta
+              sinRelleno
+              titulo={actual.nombre}
+              descripcion={actual.activa ? `${prodsActual.length} productos` : 'Oculta: los clientes no la ven en la carta'}
+              acciones={
+                <div className="flex flex-wrap items-center gap-1">
+                  <BotonIcono icono={IconoSubir} etiqueta="Subir categoría" onClick={() => moverCategoria(actual, -1)} disabled={cats[0]?.id === actual.id} />
+                  <BotonIcono icono={IconoBajar} etiqueta="Bajar categoría" onClick={() => moverCategoria(actual, 1)} disabled={cats[cats.length - 1]?.id === actual.id} />
+                  <BotonIcono
+                    icono={actual.activa ? IconoOcultar : IconoMostrar}
+                    etiqueta={actual.activa ? 'Ocultar de la carta' : 'Mostrar en la carta'}
+                    onClick={() => m.actualizarCategoria.mutate({ id: actual.id, cambios: { activa: !actual.activa } })}
+                  />
+                  <BotonIcono icono={IconoEditar} etiqueta="Renombrar categoría" onClick={() => setDialogo({ tipo: 'categoria', editar: actual })} />
+                  <BotonIcono icono={Trash2} tono="peligro" etiqueta="Eliminar categoría" onClick={() => borrarCategoria(actual)} />
+                  <Boton tamano="sm" icono={IconoAgregar} onClick={() => setDialogo({ tipo: 'producto' })} className="ml-1">
+                    Producto
+                  </Boton>
+                </div>
+              }
+            >
               {prodsActual.length === 0 ? (
-                <p className="mt-4 rounded-xl border border-dashed border-stone-300 bg-white p-8 text-center text-sm text-stone-500">Esta categoría todavía no tiene productos.</p>
+                <div className="px-5 py-10 text-center">
+                  <p className="font-semibold">Esta categoría todavía no tiene productos</p>
+                  <p className="mt-1 text-sm text-tinta-2">Agregá el primero con su precio y su costo.</p>
+                </div>
               ) : (
-                <ul className="mt-3 divide-y divide-stone-100 overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-stone-200">
-                  {prodsActual.map((p) => (
-                    <li key={p.id} className="flex flex-wrap items-center gap-x-4 gap-y-2 p-4">
-                      <div className="min-w-0 flex-1 basis-48">
-                        <p className={`font-semibold ${p.disponible ? 'text-stone-900' : 'text-stone-400'}`}>{p.nombre}</p>
-                        {p.descripcion && <p className="line-clamp-1 text-sm text-stone-500">{p.descripcion}</p>}
-                      </div>
-                      <div className="text-right text-sm tabular-nums">
-                        <p className="font-semibold">{formatearPrecio(p.precio)}</p>
-                        {usuario.rol === 'admin' && <p className="text-xs text-stone-400">costo {formatearPrecio(p.costo)}</p>}
-                      </div>
-                      <label className="flex cursor-pointer items-center gap-2 text-xs text-stone-600">
-                        <input
-                          type="checkbox"
-                          checked={p.disponible}
-                          onChange={(e) => m.actualizarProducto.mutate({ id: p.id, cambios: { disponible: e.target.checked } })}
-                          className="size-4 accent-marca-600"
-                        />
-                        Disponible
-                      </label>
-                      <div className="flex gap-2">
-                        <Boton variante="secundario" className="h-9" onClick={() => setDialogo({ tipo: 'producto', editar: p })}>Editar</Boton>
-                        <Boton variante="secundario" className="h-9" onClick={() => borrarProducto(p)}>Eliminar</Boton>
-                      </div>
-                    </li>
-                  ))}
+                <ul className="divide-y divide-borde">
+                  {prodsActual.map((p) => {
+                    const margen = p.precio > 0 ? (p.precio - p.costo) / p.precio : 0
+                    return (
+                      <li key={p.id} className="flex flex-wrap items-center gap-x-5 gap-y-2 px-5 py-3.5">
+                        <div className="min-w-0 flex-1 basis-52">
+                          <p className={cn('font-semibold', !p.disponible && 'text-tinta-3')}>{p.nombre}</p>
+                          {p.descripcion && <p className="line-clamp-1 text-sm text-tinta-3">{p.descripcion}</p>}
+                        </div>
+                        <div className="cifras text-right">
+                          <p className="font-bold">{formatearPrecio(p.precio)}</p>
+                          {usuario.rol === 'admin' && (
+                            <p className="text-xs text-tinta-3">
+                              costo {formatearPrecio(p.costo)} · <span className={margen < 0.3 ? 'font-semibold text-marca-700' : ''}>{Math.round(margen * 100)} % margen</span>
+                            </p>
+                          )}
+                        </div>
+                        <Interruptor activo={p.disponible} onCambiar={(v) => m.actualizarProducto.mutate({ id: p.id, cambios: { disponible: v } })} etiqueta="Disponible" />
+                        <div className="flex">
+                          <BotonIcono icono={IconoEditar} etiqueta={`Editar ${p.nombre}`} onClick={() => setDialogo({ tipo: 'producto', editar: p })} />
+                          <BotonIcono icono={Trash2} tono="peligro" etiqueta={`Eliminar ${p.nombre}`} onClick={() => borrarProducto(p)} />
+                        </div>
+                      </li>
+                    )
+                  })}
                 </ul>
               )}
-            </section>
+            </Tarjeta>
           )}
         </div>
       )}
