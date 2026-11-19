@@ -63,3 +63,13 @@ export async function subirImagenProducto(archivo: File): Promise<string> {
   if (!respuesta.ok) throw new ErrorImagen('No se pudo subir la foto. Probá de nuevo.')
   return data.urlPublica
 }
+
+/**
+ * Pide borrar una foto que dejó de usarse. Es "dispara y olvidate": el servidor solo la borra si ningún
+ * producto la usa, así que llamarla de más es inofensivo, y si falla (sin conexión) queda un archivo
+ * huérfano que no se ve en ningún lado.
+ */
+export function liberarImagen(url: string | null | undefined): void {
+  if (!url || !navigator.onLine) return
+  void supabase.functions.invoke('borrar-imagen', { body: { url } }).catch(() => undefined)
+}

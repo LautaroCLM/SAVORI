@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from 'react'
+import { useEffect, useRef, useState, type FormEvent } from 'react'
 import { useUsuario } from '@/features/auth/useContexto'
 import { Modal } from '@/components/Modal'
 import { BookOpen, EyeOff, Trash2 } from 'lucide-react'
@@ -9,6 +9,7 @@ import { cn } from '@/lib/utils'
 import { formatearPrecio } from '@/lib/formato'
 import { mensajeDeError } from '@/lib/errores'
 import type { Categoria, Producto } from '@/services/carta'
+import { liberarImagen } from '@/services/imagenes'
 import { CampoImagen } from './CampoImagen'
 import { useCategorias, useMutacionesCarta, useProductos } from './useCartaAdmin'
 
@@ -74,6 +75,17 @@ function FormProducto({
   const [disponible, setDisponible] = useState(inicial?.disponible ?? true)
   const [imagen, setImagen] = useState<string | null>(inicial?.imagen_url ?? null)
   const [subiendo, setSubiendo] = useState(false)
+  // Fotos subidas mientras el formulario estuvo abierto. Al cerrarlo se piden borrar: el servidor
+  // conserva la que haya quedado guardada en el producto y borra el resto (cambios o cancelación).
+  const subidas = useRef<string[]>([])
+  useEffect(() => {
+    const lista = subidas.current
+    return () => lista.forEach(liberarImagen)
+  }, [])
+  function cambiarImagen(url: string | null) {
+    if (url && url !== inicial?.imagen_url) subidas.current.push(url)
+    setImagen(url)
+  }
 
   function enviar(e: FormEvent) {
     e.preventDefault()
@@ -105,7 +117,7 @@ function FormProducto({
         <Campo etiqueta="Costo ($)" id="prod-costo" type="number" inputMode="decimal" min={0} step="any" value={costo} onChange={(e) => setCosto(e.target.value)} className="cifras" />
       </div>
       <p className="-mt-3 text-xs leading-relaxed text-tinta-3">El costo es interno: no aparece en la carta de los clientes. Se usa para calcular las ganancias.</p>
-      <CampoImagen url={imagen} onCambiar={setImagen} onSubiendo={setSubiendo} />
+      <CampoImagen url={imagen} onCambiar={cambiarImagen} onSubiendo={setSubiendo} />
       <Interruptor activo={disponible} onCambiar={setDisponible} etiqueta="Disponible en la carta" />
       {error != null && <Aviso>{mensajeDeError(error)}</Aviso>}
       <Boton type="submit" icono={IconoConfirmar} cargando={guardando} disabled={subiendo}>
@@ -178,7 +190,7 @@ export function CartaPage() {
       confirmar: 'Eliminar producto',
       tono: 'peligro',
     })
-    if (ok) m.eliminarProducto.mutate(p.id)
+    if (ok) m.eliminarProducto.mutate(p.id, { onSuccess: () => liberarImagen(p.imagen_url) })
   }
 
   const errorAccion = m.actualizarCategoria.error ?? m.eliminarCategoria.error ?? m.actualizarProducto.error ?? m.eliminarProducto.error
@@ -328,7 +340,16 @@ export function CartaPage() {
             error={m.crearProducto.error ?? m.actualizarProducto.error}
             onGuardar={(datos) => {
               if (dialogo.editar) {
-                m.actualizarProducto.mutate({ id: dialogo.editar.id, cambios: datos }, { onSuccess: cerrar })
+                const anterior = dialogo.editar.imagen_url
+                m.actualizarProducto.mutate(
+                  { id: dialogo.editar.id, cambios: datos },
+                  {
+                    onSuccess: () => {
+                      if (anterior !== datos.imagen_url) liberarImagen(anterior)
+                      cerrar()
+                    },
+                  },
+                )
               } else {
                 const orden = Math.max(0, ...prods.filter((p) => p.categoria_id === datos.categoria_id).map((p) => p.orden)) + 1
                 m.crearProducto.mutate({ restaurante_id: usuario.restaurante_id, orden, ...datos }, {
