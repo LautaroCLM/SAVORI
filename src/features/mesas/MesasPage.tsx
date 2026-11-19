@@ -7,6 +7,8 @@ import { useConfirmar } from '@/components/Confirmar'
 import { Aviso, Boton, BotonIcono, CargandoSeccion, Campo, EncabezadoPagina, EstadoVacio, Insignia, Pestanas, Punto, Selector, estiloBoton } from '@/components/ui'
 import { IconoAgregar, IconoConfirmar, IconoEditar } from '@/components/iconos'
 import { mensajeDeError } from '@/lib/errores'
+import { formatearPrecio } from '@/lib/formato'
+import { cn } from '@/lib/utils'
 import type { Mesa, Salon } from '@/services/mesas'
 import { NuevoPedidoModal } from '@/features/pedidos/NuevoPedidoModal'
 import { usePedidosActivos, useSesionesAbiertas } from '@/features/pedidos/usePedidos'
@@ -116,7 +118,7 @@ export function MesasPage() {
   const [seleccion, setSeleccion] = useState<string | null>(null)
   const [dialogo, setDialogo] = useState<Dialogo>(null)
   const [qrDe, setQrDe] = useState<Mesa | null>(null)
-  const [vista, setVista] = useState<'mapa' | 'lista'>('mapa')
+  const [vista, setVista] = useState<'mapa' | 'lista'>(() => (typeof window !== 'undefined' && window.matchMedia('(max-width: 639px)').matches ? 'lista' : 'mapa'))
   const [editando, setEditando] = useState(false)
   const [elegidaId, setElegidaId] = useState<string | null>(null)
   const [panelDe, setPanelDe] = useState<Mesa | null>(null)
@@ -300,21 +302,40 @@ export function MesasPage() {
             <ul className="overflow-hidden rounded-tarjeta border border-borde bg-superficie">
               {mesasActual.map((x) => {
                 const ocupada = x.estado === 'ocupada'
+                const datos = info[x.id]
+                const estado = (clase: string) =>
+                  datos && datos.listos > 0 ? (
+                    <Insignia tono="exito" punto className={clase}>
+                      {datos.listos === 1 ? 'Pedido listo' : `${datos.listos} listos`}
+                    </Insignia>
+                  ) : (
+                    <Insignia tono={ocupada ? 'marca' : 'exito'} punto className={clase}>
+                      {ocupada ? (datos && datos.activos > 0 ? `${datos.activos} en curso` : 'Ocupada') : 'Libre'}
+                    </Insignia>
+                  )
                 return (
-                  <li key={x.id} className="flex flex-wrap items-center gap-x-4 gap-y-2 border-b border-borde px-5 py-3.5 last:border-b-0">
-                    <button type="button" onClick={() => setPanelDe(x)} className="flex min-w-0 flex-1 basis-48 items-center gap-4 text-left">
-                      <span className="cifras flex size-11 shrink-0 items-center justify-center rounded-control bg-superficie-2 text-lg font-bold">{x.numero}</span>
+                  <li key={x.id} className="flex items-center gap-3 border-b border-borde px-4 py-3 last:border-b-0 sm:gap-4 sm:px-5">
+                    <button type="button" onClick={() => setPanelDe(x)} className="flex min-w-0 flex-1 items-center gap-3 text-left sm:gap-4">
+                      <span
+                        className={cn(
+                          'cifras flex size-11 shrink-0 items-center justify-center rounded-control text-lg font-bold',
+                          ocupada ? 'bg-marca-50 text-marca-800' : 'bg-superficie-2 text-tinta',
+                        )}
+                      >
+                        {x.numero}
+                      </span>
                       <span className="min-w-0">
                         <span className="block font-semibold">Mesa {x.numero}</span>
-                        <span className="text-sm text-tinta-3">
-                          {x.capacidad} personas · {FORMAS.find((f) => f.valor === x.forma)?.etiqueta.toLowerCase()}
+                        <span className="cifras block truncate text-sm text-tinta-3">
+                          {ocupada && datos?.total != null && datos.total > 0
+                            ? `Cuenta ${formatearPrecio(datos.total)}`
+                            : `${x.capacidad} personas · ${FORMAS.find((f) => f.valor === x.forma)?.etiqueta.toLowerCase()}`}
                         </span>
+                        {estado('mt-1 sm:hidden')}
                       </span>
                     </button>
-                    <Insignia tono={ocupada ? 'marca' : 'exito'} punto>
-                      {ocupada ? 'Ocupada' : 'Libre'}
-                    </Insignia>
-                    <div className="flex">
+                    {estado('shrink-0 max-sm:hidden')}
+                    <div className="flex shrink-0">
                       <BotonIcono icono={QrCode} etiqueta={`Ver el QR de la mesa ${x.numero}`} onClick={() => setQrDe(x)} />
                       {esAdmin && <BotonIcono icono={IconoEditar} etiqueta={`Editar la mesa ${x.numero}`} onClick={() => setDialogo({ tipo: 'mesa', editar: x })} />}
                       {esAdmin && <BotonIcono icono={Trash2} tono="peligro" etiqueta={`Eliminar la mesa ${x.numero}`} onClick={() => borrarMesa(x)} />}
