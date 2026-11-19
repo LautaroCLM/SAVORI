@@ -3,6 +3,7 @@ import QRCode from 'qrcode'
 import {
   actualizarMesa,
   actualizarSalon,
+  cambiarEstadoMesa,
   crearMesa,
   crearSalon,
   eliminarMesa,
@@ -42,6 +43,21 @@ export function useMutacionesMesas() {
     }),
     eliminarMesa: useMutation({ mutationFn: eliminarMesa, onSuccess: refrescar }),
     regenerarQr: useMutation({ mutationFn: regenerarQrMesa, onSuccess: refrescar }),
+    /** Marcar la mesa libre u ocupada a mano: se ve al instante y, sin conexión, queda en la cola. */
+    estadoMesa: useMutation({
+      mutationFn: ({ id, estado }: { id: string; estado: Mesa['estado'] }) => {
+        const numero = queryClient.getQueryData<Mesa[]>(MESAS)?.find((m) => m.id === id)?.numero ?? '?'
+        return cambiarEstadoMesa(id, estado, `Marcar la mesa ${numero} como ${estado}`)
+      },
+      onMutate: async ({ id, estado }) => {
+        await queryClient.cancelQueries({ queryKey: MESAS })
+        const previo = queryClient.getQueryData<Mesa[]>(MESAS)
+        queryClient.setQueryData<Mesa[]>(MESAS, (v) => v?.map((m) => (m.id === id ? { ...m, estado } : m)))
+        return { previo }
+      },
+      onError: (_e, _v, ctx) => queryClient.setQueryData(MESAS, ctx?.previo),
+      onSuccess: (r) => (r.encolado ? undefined : refrescar()),
+    }),
   }
 }
 

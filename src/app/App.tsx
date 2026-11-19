@@ -1,15 +1,15 @@
-import { QueryClientProvider } from '@tanstack/react-query'
+import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client'
 import { RouterProvider } from 'react-router-dom'
-import { queryClient } from '@/lib/queryClient'
+import { opcionesPersistencia, queryClient } from '@/lib/queryClient'
 import { AuthProvider } from '@/features/auth/AuthProvider'
 import { router } from './router'
 
 export function App() {
   return (
-    <QueryClientProvider client={queryClient}>
+    <PersistQueryClientProvider client={queryClient} persistOptions={opcionesPersistencia}>
       <AuthProvider>
         <RouterProvider router={router} />
       </AuthProvider>
-    </QueryClientProvider>
+    </PersistQueryClientProvider>
   )
 }

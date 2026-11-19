@@ -1,4 +1,5 @@
 import { supabase } from '@/lib/supabase'
+import { ejecutarOEncolar, registrarEjecutor, type ResultadoOperacion } from './offline'
 import type { Tables, TablesInsert, TablesUpdate } from '@/types/database'
 
 export type Salon = Tables<'salones'>
@@ -55,7 +56,23 @@ export async function regenerarQrMesa(id: string): Promise<string> {
   return data
 }
 
-/** URL pública que se codifica en el QR de una mesa. */
+/**
+ * URL pública que se codifica en el QR de una mesa. En la web es el propio origen; en la app de
+ * escritorio (Tauri) el origen es interno, así que se usa VITE_PUBLIC_URL (ver .env.tauri).
+ */
 export function urlCartaDeMesa(qrToken: string): string {
-  return `${window.location.origin}/m/${qrToken}`
+  const base = (import.meta.env.VITE_PUBLIC_URL || window.location.origin).replace(/\/+$/, '')
+  return `${base}/m/${qrToken}`
+}
+
+// --- Estado manual de la mesa (funciona sin conexión) ------------------------------------------------
+
+async function enviarEstadoMesa({ id, estado }: { id: string; estado: Mesa['estado'] }): Promise<void> {
+  const { error } = await supabase.from('mesas').update({ estado }).eq('id', id)
+  if (error) throw error
+}
+registrarEjecutor('mesa.estado', enviarEstadoMesa)
+
+export function cambiarEstadoMesa(id: string, estado: Mesa['estado'], descripcion: string): Promise<ResultadoOperacion> {
+  return ejecutarOEncolar('mesa.estado', { id, estado }, descripcion)
 }

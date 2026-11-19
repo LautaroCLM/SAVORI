@@ -3,7 +3,7 @@
 -- =============================================================================
 begin;
 create extension if not exists pgtap with schema extensions;
-select plan(19);
+select plan(24);
 
 insert into auth.users (id, email, aud, role) values
   ('d1000000-0000-4000-a000-000000000001', 'admin-x@test.test',  'authenticated', 'authenticated'),
@@ -66,12 +66,20 @@ select is((select count(*)::int from public.sesiones_mesa where mesa_id = 'd1bbb
 select lives_ok($$ select public.crear_pedido_mozo('d1bbbbbb-0000-4000-a000-000000000000', '[{"producto_id":"d1dddddd-0000-4000-a000-000000000001","cantidad":1}]') $$, 'Segundo pedido en la misma mesa');
 select is((select count(distinct sesion_id)::int from public.pedidos where mesa_id = 'd1bbbbbb-0000-4000-a000-000000000000'), 1, 'Ambos pedidos comparten la sesión');
 
+-- idempotencia: reintentar con el mismo id no duplica el pedido (cola offline)
+select is((public.crear_pedido_mozo('d1bbbbbb-0000-4000-a000-000000000000', '[{"producto_id":"d1dddddd-0000-4000-a000-000000000001","cantidad":1}]', null, 'd1eeeeee-0000-4000-a000-000000000001') ->> 'repetido')::boolean, false, 'Primer envío con id propio');
+select is((public.crear_pedido_mozo('d1bbbbbb-0000-4000-a000-000000000000', '[{"producto_id":"d1dddddd-0000-4000-a000-000000000001","cantidad":1}]', null, 'd1eeeeee-0000-4000-a000-000000000001') ->> 'repetido')::boolean, true, 'El reintento devuelve el mismo pedido');
+select is((select count(*)::int from public.pedidos where id = 'd1eeeeee-0000-4000-a000-000000000001'), 1, 'No se duplicó el pedido');
+select is((select count(*)::int from public.pedido_items where pedido_id = 'd1eeeeee-0000-4000-a000-000000000001'), 1, 'Ni sus items');
+select is((select total from public.pedidos where id = 'd1eeeeee-0000-4000-a000-000000000001'), 1500::numeric, 'El reintento no suma de más a la cuenta');
+update public.pedidos set estado = 'cancelado' where id = 'd1eeeeee-0000-4000-a000-000000000001';
+
 -- el total de la cuenta abierta se actualiza en vivo
 select is((select total from public.sesiones_mesa where mesa_id = 'd1bbbbbb-0000-4000-a000-000000000000' and cerrada_at is null), 4500::numeric, 'El total de la sesión abierta se mantiene al día');
 
 -- cocina avanza el estado
 set local request.jwt.claims to '{"sub":"d1000000-0000-4000-a000-000000000003","role":"authenticated"}';
-select lives_ok($$ update public.pedidos set estado = 'en_preparacion' where mesa_id = 'd1bbbbbb-0000-4000-a000-000000000000' $$, 'La cocina cambia el estado');
+select lives_ok($$ update public.pedidos set estado = 'en_preparacion' where mesa_id = 'd1bbbbbb-0000-4000-a000-000000000000' and estado <> 'cancelado' $$, 'La cocina cambia el estado');
 
 -- cancelar un pedido lo descuenta de la cuenta abierta
 set local role authenticated;

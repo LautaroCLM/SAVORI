@@ -3,7 +3,7 @@
 Multi-restaurante (multi-tenant) sobre **Supabase**, con frontend **React + Vite + TypeScript + Tailwind**.
 Interfaz en español (Argentina), moneda ARS.
 
-> **Estado:** Fases 1 a 4 listas: auth y onboarding, carta, mesas con mapa, pedidos por QR y de mozo, cocina, cobro, stock automático y ganancias, todo en tiempo real. Falta la subida de imágenes a Cloudflare R2 (Fase 2) y Tauri/offline (Fase 5).
+> **Estado:** Fases 1 a 5 listas: auth y onboarding, carta, mesas con mapa, pedidos por QR y de mozo, cocina, cobro, stock, ganancias, **modo offline con cola de operaciones** y **app de escritorio (Tauri v2)**. Falta solo la subida de imágenes a Cloudflare R2 (Fase 2) y, opcionalmente, empaquetar para móvil (Android/iOS).
 
 ---
 
@@ -56,7 +56,7 @@ Carta pública: <http://localhost:5173/m/demo-mesa-1-token> (hasta `demo-mesa-6-
 npx supabase test db
 ```
 
-Corre `supabase/tests/aislamiento_test.sql` (pgTAP) y `onboarding_test.sql` (127 tests en total), que verifica entre otras cosas:
+Corre `supabase/tests/aislamiento_test.sql` (pgTAP) y `onboarding_test.sql` (132 tests de base de datos) y 26 tests de la cola offline (`npm test`), que verifica entre otras cosas:
 
 - un usuario del restaurante A **no ve ni modifica** datos del restaurante B (todas las tablas);
 - `anon` **no puede leer ninguna tabla** directamente ni ejecutar funciones internas;
@@ -169,6 +169,38 @@ Todo se sincroniza con **Supabase Realtime** (`pedidos`, `pedido_items`, `mesas`
 
 ---
 
+## Modo offline
+
+Pensado para cuando se cae el internet **en pleno servicio** (con la app ya abierta). Supabase sigue siendo la única fuente de verdad: la app solo guarda lo que hiciste sin conexión y lo reenvía, en orden, al volver.
+
+- **Aviso SIN CONEXIÓN** permanente en el dashboard, y bajo él una franja con las operaciones pendientes ("3 operaciones pendientes · se envían solas cuando vuelva la conexión").
+- **Qué funciona sin conexión:** cambiar el estado de un pedido (cocina, mozo), **cargar pedidos del mozo**, **cerrar cuentas** y marcar mesas libres/ocupadas. Se ven al instante en pantalla y quedan en una **cola local** (por usuario, en este dispositivo).
+- **Qué se ve sin conexión:** lo último sincronizado (pedidos, mesas, carta, stock…), guardado en una caché local que se borra al cerrar sesión o cambiar de usuario.
+- **Al volver internet** (o cada 15 s mientras haya pendientes) la cola se envía **en orden y de a una**. Un corte de red no descarta nada; si el **servidor rechaza** una operación (por ejemplo, el pedido se canceló mientras tanto o no hay stock) queda marcada en rojo con el motivo, para **reintentar o descartar**.
+- **Sin duplicados:** los pedidos del mozo llevan un ID generado en el dispositivo; si el servidor recibió el pedido pero la respuesta se perdió, el reintento devuelve el mismo pedido (`crear_pedido_mozo` es idempotente).
+- **Qué requiere conexión:** administrar la carta, el stock, las mesas (alta/edición), el equipo y ver ganancias; y los pedidos que hacen los **clientes** por QR.
+- **Limitación conocida:** abrir la app **en frío** sin internet y con la sesión vencida (más de ~1 h desde la última conexión) no puede verificar la sesión: muestra un aviso con *Reintentar*. Lo habitual (perder la conexión con la app abierta) funciona.
+- Para el desarrollador: la cola es lógica pura y testeada (`src/lib/offline/cola.ts`, `npm test`); los servicios envían con `ejecutarOEncolar` (`src/services/offline.ts`) y los componentes no cambian.
+
+---
+
+## App de escritorio (Tauri v2)
+
+La misma web, empaquetada como app nativa (WebView2 en Windows), en `src-tauri/`. Requiere [Rust](https://rustup.rs) y, en Windows, las *Build Tools de Visual Studio* con "Desarrollo de escritorio con C++" (y WebView2, que ya viene con Windows 10/11).
+
+```powershell
+npm run tauri:dev      # ventana de desarrollo (usa la base local si tenés Supabase local corriendo)
+npm run tauri:build    # genera el instalador en src-tauri/target/release/bundle/nsis/
+```
+
+- El build de escritorio usa `.env.tauri`: ahí está `VITE_PUBLIC_URL`, la URL pública de la web que se codifica en los **QR** (el origen interno de la app no sirve para eso). Cambiala si publicás la web en otro dominio.
+- Seguridad: la app solo puede conectarse a Supabase (política CSP en `src-tauri/tauri.conf.json`) y no expone acceso a archivos ni al sistema.
+- El identificador es `app.savori.gestion` y los iconos salen de `brand/web/icon-1024.png` (`npx tauri icon brand/web/icon-1024.png` para regenerarlos).
+- **Móvil (Android/iOS):** la estructura es compatible con Tauri Mobile (`npx tauri android init` / `ios init`), pero requiere Android Studio / Xcode y no está generado.
+- Firma de código y actualizaciones automáticas no están configuradas: Windows mostrará el aviso de "editor desconocido" hasta que firmes el instalador.
+
+---
+
 ## Arquitectura
 
 ### Base de datos (`supabase/migrations/`)
@@ -181,6 +213,7 @@ Todo se sincroniza con **Supabase Realtime** (`pedidos`, `pedido_items`, `mesas`
 | `…04_rpc_publicas_y_realtime.sql` | `obtener_carta`, `crear_pedido_qr`, publicación Realtime        |
 | `20261118…_onboarding_invitaciones.sql` | `invitaciones`, `crear_mi_restaurante`, `unirme_con_codigo`, `generar_invitacion` |
 | `20261119…_pedidos_mozo.sql` | `crear_pedido_mozo`, total de la cuenta abierta en vivo, Realtime de `sesiones_mesa` |
+| `20261121…_pedido_mozo_idempotente.sql` | `crear_pedido_mozo` con ID propio (reintentos sin duplicar) |
 | `20261120…_stock_ganancias.sql` | descuento/devolución automática de stock, `registrar_movimiento_stock`, `resumen_ganancias`, `productos_mas_vendidos` |
 
 Ajustes respecto al esquema inicial:
@@ -246,6 +279,8 @@ El aviso **SIN CONEXIÓN** ya se muestra en el dashboard, en el login y en la ca
 | `npm run db:start`          | `supabase start`                                |
 | `npm run db:reset`          | reaplica migraciones + seed (local)             |
 | `npm run db:test`           | tests pgTAP                                     |
+| `npm test`                  | tests unitarios (cola offline)                  |
+| `npm run tauri:dev` / `tauri:build` | app de escritorio                        |
 | `npm run db:types`          | regenera `src/types/database.ts` desde la base local |
 | `npm run crear-restaurante` | alta de restaurante + admin                     |
 | `npm run crear-usuario`     | alta de usuario en un restaurante existente     |

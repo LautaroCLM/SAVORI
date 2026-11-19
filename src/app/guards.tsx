@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import { useEffect, useState, type ReactNode } from 'react'
 import { Navigate, Outlet, useLocation } from 'react-router-dom'
 import { useAuth } from '@/features/auth/AuthProvider'
 import { useContexto, useUsuario } from '@/features/auth/useContexto'
@@ -21,13 +21,30 @@ function PantallaBloqueo({ titulo, mensaje, accion }: { titulo: string; mensaje:
   )
 }
 
+/** Pantalla de carga de la sesión: si tarda demasiado (sin conexión), avisa en vez de girar para siempre. */
+function PantallaVerificandoSesion() {
+  const [tarda, setTarda] = useState(false)
+  useEffect(() => {
+    const t = setTimeout(() => setTarda(true), 6000)
+    return () => clearTimeout(t)
+  }, [])
+  if (!tarda) return <PantallaCargando />
+  return (
+    <PantallaBloqueo
+      titulo="Verificando tu sesión…"
+      mensaje="Está tardando más de lo normal: probablemente no hay conexión. Para abrir la app necesitás internet al menos una vez cada tanto; si ya estabas adentro, tus operaciones pendientes siguen guardadas en este dispositivo."
+      accion={<Boton onClick={() => window.location.reload()}>Reintentar</Boton>}
+    />
+  )
+}
+
 /** Requiere sesión iniciada, perfil asignado y restaurante activo. */
 export function RequireAuth() {
   const { session, cargando } = useAuth()
   const location = useLocation()
   const contexto = useContexto()
 
-  if (cargando) return <PantallaCargando />
+  if (cargando) return <PantallaVerificandoSesion />
   if (!session) return <Navigate to="/login" replace state={{ desde: location.pathname }} />
   if (contexto.isPending) return <PantallaCargando />
 

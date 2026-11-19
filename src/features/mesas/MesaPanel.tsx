@@ -39,7 +39,7 @@ function Contenido({ mesa, onCerrar, onNuevoPedido, onVerQr }: { mesa: Mesa; onC
   const sesion = sesiones.data?.find((s) => s.mesa_id === mesa.id) ?? null
   const pedidos = usePedidosDeSesion(sesion?.id ?? null)
   const { cerrarCuenta, cambiarEstado } = useMutacionesPedidos()
-  const { actualizarMesa } = useMutacionesMesas()
+  const { estadoMesa } = useMutacionesMesas()
   const [metodo, setMetodo] = useState<MetodoPago>('efectivo')
 
   const vigentes = (pedidos.data ?? []).filter((p) => p.estado !== 'cancelado')
@@ -54,7 +54,7 @@ function Contenido({ mesa, onCerrar, onNuevoPedido, onVerQr }: { mesa: Mesa; onC
     }
   }
 
-  const error = cerrarCuenta.error ?? cambiarEstado.error ?? actualizarMesa.error
+  const error = cerrarCuenta.error ?? cambiarEstado.error ?? estadoMesa.error
 
   return (
     <div className="flex flex-col gap-5">
@@ -118,7 +118,7 @@ function Contenido({ mesa, onCerrar, onNuevoPedido, onVerQr }: { mesa: Mesa; onC
         )}
 
         {!sesion && (
-          <Boton variante="secundario" cargando={actualizarMesa.isPending} onClick={() => actualizarMesa.mutate({ id: mesa.id, cambios: { estado: ocupada ? 'libre' : 'ocupada' } })}>
+          <Boton variante="secundario" cargando={estadoMesa.isPending} onClick={() => estadoMesa.mutate({ id: mesa.id, estado: ocupada ? 'libre' : 'ocupada' })}>
             Marcar como {ocupada ? 'libre' : 'ocupada'}
           </Boton>
         )}

@@ -7,3 +7,4 @@ scripts/
 brand/_src/
 brand/concepts/
 .claude/
+src-tauri/

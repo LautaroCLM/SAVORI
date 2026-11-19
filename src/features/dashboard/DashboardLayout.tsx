@@ -4,6 +4,8 @@ import { useUsuario } from '@/features/auth/useContexto'
 import { cerrarSesion } from '@/services/auth'
 import { Logo } from '@/components/Logo'
 import { OfflineBanner } from '@/components/OfflineBanner'
+import { EstadoSincronizacion } from '@/features/offline/EstadoSincronizacion'
+import { OfflineProvider, useOffline } from '@/features/offline/OfflineProvider'
 import { useCantidadAlertasStock } from '@/features/stock/useStock'
 import { useRealtimeRestaurante } from './useRealtime'
 import { NAVEGACION, rutaInicial, type ItemNav } from './navegacion'
@@ -39,10 +41,16 @@ function EnlaceNav({ item, compacto, aviso }: { item: ItemNav; compacto?: boolea
   )
 }
 
-export function DashboardLayout() {
+function DashboardContenido() {
   const usuario = useUsuario()
+  const { pendientes, conError } = useOffline()
   const items = NAVEGACION.filter((item) => item.roles.includes(usuario.rol))
   const salir = useMutation({ mutationFn: cerrarSesion })
+  const cerrar = () => {
+    const sinEnviar = pendientes.length + conError.length
+    if (sinEnviar > 0 && !window.confirm(`Tenés ${sinEnviar} operación(es) sin enviar. Se guardan en este dispositivo y se envían cuando vuelvas a ingresar con este usuario con conexión. ¿Cerrar sesión igual?`)) return
+    salir.mutate()
+  }
   useRealtimeRestaurante(usuario.restaurante_id)
   const alertasStock = useCantidadAlertasStock(usuario.rol === 'admin')
 
@@ -64,7 +72,7 @@ export function DashboardLayout() {
         </nav>
         <div className="border-t border-stone-800 p-3">
           <button
-            onClick={() => salir.mutate()}
+            onClick={cerrar}
             disabled={salir.isPending}
             className="w-full rounded-lg px-3 py-2.5 text-left text-sm font-medium text-stone-400 hover:bg-stone-800 hover:text-white"
           >
@@ -83,7 +91,7 @@ export function DashboardLayout() {
               <p className="truncate text-xs text-stone-400">{usuario.nombre}</p>
             </div>
           </div>
-          <button onClick={() => salir.mutate()} className="shrink-0 text-sm text-stone-400 hover:text-white">
+          <button onClick={cerrar} className="shrink-0 text-sm text-stone-400 hover:text-white">
             Salir
           </button>
         </div>
@@ -96,6 +104,7 @@ export function DashboardLayout() {
 
       <div className="flex min-w-0 flex-1 flex-col">
         <OfflineBanner />
+        <EstadoSincronizacion />
         <main className="flex-1 p-4 md:p-8 print:p-0">
           <Outlet />
         </main>
@@ -108,4 +117,14 @@ export function DashboardLayout() {
 export function InicioRedirect() {
   const usuario = useUsuario()
   return <Navigate to={rutaInicial(usuario.rol)} replace />
+}
+
+/** Dashboard: layout + cola de operaciones offline del usuario. */
+export function DashboardLayout() {
+  const usuario = useUsuario()
+  return (
+    <OfflineProvider usuarioId={usuario.usuario_id}>
+      <DashboardContenido />
+    </OfflineProvider>
+  )
 }

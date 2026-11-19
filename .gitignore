@@ -38,3 +38,9 @@ brand/_src/fav/
 
 .vercel
 .env*
+
+# Tauri
+src-tauri/target/
+src-tauri/gen/
+!.env.example
+!.env.tauri

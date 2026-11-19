@@ -1,4 +1,5 @@
 import { supabase } from '@/lib/supabase'
+import { ejecutarOEncolar, registrarEjecutor, type ResultadoOperacion } from './offline'
 import type { Database, Json } from '@/types/database'
 
 export type EstadoPedido = Database['public']['Enums']['estado_pedido']
@@ -72,9 +73,17 @@ export async function listarPedidosDeSesion(sesionId: string): Promise<PedidoCon
   return data as unknown as PedidoConItems[]
 }
 
-export async function cambiarEstadoPedido(id: string, estado: EstadoPedido): Promise<void> {
+// --- Operaciones de servicio (funcionan sin conexión: ver services/offline.ts) -------------------
+
+async function enviarCambioEstado({ id, estado }: { id: string; estado: EstadoPedido }): Promise<void> {
   const { error } = await supabase.from('pedidos').update({ estado }).eq('id', id)
   if (error) throw error
+}
+registrarEjecutor('pedido.estado', enviarCambioEstado)
+
+/** Cambia el estado de un pedido. Sin conexión queda en cola y se aplica al volver. */
+export function cambiarEstadoPedido(id: string, estado: EstadoPedido, descripcion: string): Promise<ResultadoOperacion> {
+  return ejecutarOEncolar('pedido.estado', { id, estado }, descripcion)
 }
 
 export interface ItemNuevo {
@@ -82,14 +91,28 @@ export interface ItemNuevo {
   cantidad: number
 }
 
-/** El mozo carga un pedido. Los precios los toma el servidor de la base. */
-export async function crearPedidoMozo(mesaId: string, items: ItemNuevo[], notas: string): Promise<void> {
+interface PayloadPedidoMozo {
+  /** Generado en el cliente: reintentar el envío no duplica el pedido (idempotente en la base). */
+  id: string
+  mesaId: string
+  items: ItemNuevo[]
+  notas: string
+}
+
+async function enviarPedidoMozo({ id, mesaId, items, notas }: PayloadPedidoMozo): Promise<void> {
   const { error } = await supabase.rpc('crear_pedido_mozo', {
     p_mesa_id: mesaId,
     p_items: items as unknown as Json,
     p_notas: notas.trim() || undefined,
+    p_id: id,
   })
   if (error) throw error
+}
+registrarEjecutor('pedido.crear', enviarPedidoMozo)
+
+/** El mozo carga un pedido. Los precios los toma el servidor. Sin conexión queda en cola. */
+export function crearPedidoMozo(mesaId: string, items: ItemNuevo[], notas: string, descripcion: string): Promise<ResultadoOperacion> {
+  return ejecutarOEncolar('pedido.crear', { id: crypto.randomUUID(), mesaId, items, notas }, descripcion)
 }
 
 export async function listarSesionesAbiertas(): Promise<SesionAbierta[]> {
@@ -101,12 +124,24 @@ export async function listarSesionesAbiertas(): Promise<SesionAbierta[]> {
   return data as SesionAbierta[]
 }
 
-/** Cierra la cuenta abierta de la mesa: calcula el total y deja la mesa libre (triggers en la base). */
-export async function cerrarCuenta(mesaId: string, metodo: MetodoPago): Promise<void> {
+interface PayloadCuenta {
+  mesaId: string
+  metodo: MetodoPago
+  /** Momento real del cobro (aunque se sincronice después). */
+  cerradaAt: string
+}
+
+async function enviarCierreCuenta({ mesaId, metodo, cerradaAt }: PayloadCuenta): Promise<void> {
   const { error } = await supabase
     .from('sesiones_mesa')
-    .update({ cerrada_at: new Date().toISOString(), metodo_pago: metodo })
+    .update({ cerrada_at: cerradaAt, metodo_pago: metodo })
     .eq('mesa_id', mesaId)
-    .is('cerrada_at', null)
+    .is('cerrada_at', null) // si ya estaba cerrada, no hace nada (idempotente)
   if (error) throw error
+}
+registrarEjecutor('cuenta.cerrar', enviarCierreCuenta)
+
+/** Cierra la cuenta abierta de la mesa: calcula el total y deja la mesa libre (triggers en la base). */
+export function cerrarCuenta(mesaId: string, metodo: MetodoPago, descripcion: string): Promise<ResultadoOperacion> {
+  return ejecutarOEncolar('cuenta.cerrar', { mesaId, metodo, cerradaAt: new Date().toISOString() }, descripcion)
 }
