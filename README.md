@@ -3,7 +3,7 @@
 Multi-restaurante (multi-tenant) sobre **Supabase**, con frontend **React + Vite + TypeScript + Tailwind**.
 Interfaz en español (Argentina), moneda ARS.
 
-> **Estado:** Fases 1 a 5 listas: auth y onboarding, carta, mesas con mapa, pedidos por QR y de mozo, cocina, cobro, stock, ganancias, **modo offline con cola de operaciones** y **app de escritorio (Tauri v2)**. Falta solo la subida de imágenes a Cloudflare R2 (Fase 2) y, opcionalmente, empaquetar para móvil (Android/iOS).
+> **Estado:** Fases 1 a 5 listas: auth y onboarding, carta, mesas con mapa, pedidos por QR y de mozo, cocina, cobro, stock, ganancias, **modo offline con cola de operaciones** y **app de escritorio (Tauri v2)**. La subida de fotos de productos ya está hecha (función `firmar-imagen`, compatible con S3/R2; en producción falta crear el bucket de R2 y cargar sus secretos, ver `supabase/functions/.env.example`). Queda, opcionalmente, empaquetar para móvil (Android/iOS).
 
 ---
 

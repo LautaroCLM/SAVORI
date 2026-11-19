@@ -9,6 +9,7 @@ import { cn } from '@/lib/utils'
 import { formatearPrecio } from '@/lib/formato'
 import { mensajeDeError } from '@/lib/errores'
 import type { Categoria, Producto } from '@/services/carta'
+import { CampoImagen } from './CampoImagen'
 import { useCategorias, useMutacionesCarta, useProductos } from './useCartaAdmin'
 
 // --- Formularios ------------------------------------------------------------
@@ -47,6 +48,7 @@ interface DatosProducto {
   precio: number
   costo: number
   disponible: boolean
+  imagen_url: string | null
 }
 
 function FormProducto({
@@ -70,9 +72,12 @@ function FormProducto({
   const [precio, setPrecio] = useState(inicial ? String(inicial.precio) : '')
   const [costo, setCosto] = useState(inicial ? String(inicial.costo) : '')
   const [disponible, setDisponible] = useState(inicial?.disponible ?? true)
+  const [imagen, setImagen] = useState<string | null>(inicial?.imagen_url ?? null)
+  const [subiendo, setSubiendo] = useState(false)
 
   function enviar(e: FormEvent) {
     e.preventDefault()
+    if (subiendo) return
     onGuardar({
       categoria_id: categoriaId,
       nombre: nombre.trim(),
@@ -80,6 +85,7 @@ function FormProducto({
       precio: Number(precio),
       costo: Number(costo || 0),
       disponible,
+      imagen_url: imagen,
     })
   }
 
@@ -99,9 +105,10 @@ function FormProducto({
         <Campo etiqueta="Costo ($)" id="prod-costo" type="number" inputMode="decimal" min={0} step="any" value={costo} onChange={(e) => setCosto(e.target.value)} className="cifras" />
       </div>
       <p className="-mt-3 text-xs leading-relaxed text-tinta-3">El costo es interno: no aparece en la carta de los clientes. Se usa para calcular las ganancias.</p>
+      <CampoImagen url={imagen} onCambiar={setImagen} onSubiendo={setSubiendo} />
       <Interruptor activo={disponible} onCambiar={setDisponible} etiqueta="Disponible en la carta" />
       {error != null && <Aviso>{mensajeDeError(error)}</Aviso>}
-      <Boton type="submit" icono={IconoConfirmar} cargando={guardando}>
+      <Boton type="submit" icono={IconoConfirmar} cargando={guardando} disabled={subiendo}>
         Guardar
       </Boton>
     </form>
@@ -262,6 +269,7 @@ export function CartaPage() {
                     const margen = p.precio > 0 ? (p.precio - p.costo) / p.precio : 0
                     return (
                       <li key={p.id} className="flex flex-wrap items-center gap-x-5 gap-y-2 px-5 py-3.5">
+                        {p.imagen_url && <img src={p.imagen_url} alt="" loading="lazy" decoding="async" width={44} height={44} className="size-11 shrink-0 rounded-control border border-borde object-cover" />}
                         <div className="min-w-0 flex-1 basis-52">
                           <p className={cn('font-semibold', !p.disponible && 'text-tinta-3')}>{p.nombre}</p>
                           {p.descripcion && <p className="line-clamp-1 text-sm text-tinta-3">{p.descripcion}</p>}

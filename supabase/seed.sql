@@ -88,3 +88,6 @@ insert into public.productos (restaurante_id, categoria_id, nombre, descripcion,
   ('10000000-0000-4000-a000-000000000001', '30000000-0000-4000-a000-000000000004', 'Agua sin gas 500 ml', null, 2200, 700, 1, true, 48, 12),
   ('10000000-0000-4000-a000-000000000001', '30000000-0000-4000-a000-000000000004', 'Gaseosa línea Coca 500 ml', null, 3000, 1100, 2, true, 36, 12),
   ('10000000-0000-4000-a000-000000000001', '30000000-0000-4000-a000-000000000004', 'Copa de Malbec', 'Mendoza', 5200, 1800, 3, false, 0, 0);
+
+-- Solo desarrollo: bucket público que imita a Cloudflare R2 para las fotos de productos.
+insert into storage.buckets (id, name, public) values ('imagenes', 'imagenes', true) on conflict (id) do nothing;

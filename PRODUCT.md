@@ -38,7 +38,7 @@ Sistema de gestión integral para restaurantes que se vende por cuenta: centrali
 - Altas de cuentas: solo el dueño del sistema crea usuarios; el usuario crea su restaurante o se une con un código de invitación.
 - No hay planes, pruebas gratuitas ni avisos de pago dentro de la app.
 - Stack: React + Vite + TypeScript + Tailwind, Supabase (Postgres, Auth, Realtime, RLS). Sin SSR.
-- Imágenes de productos en Cloudflare R2 (pendiente de configurar).
+- Imágenes de productos en Cloudflare R2: subida firmada por la función `firmar-imagen` (falta cargar las credenciales de R2 en producción).
 
 ## Brand Commitments
 
