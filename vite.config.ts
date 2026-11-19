@@ -1,4 +1,4 @@
-import { defineConfig } from 'vitest/config'
+import { configDefaults, defineConfig } from 'vitest/config'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 import { fileURLToPath, URL } from 'node:url'
@@ -10,6 +10,8 @@ export default defineConfig({
   resolve: {
     alias: { '@': fileURLToPath(new URL('./src', import.meta.url)) },
   },
+  // Las pruebas de seguridad (pruebas/rls) necesitan Supabase local: van aparte con `npm run test:rls`
+  test: { exclude: [...configDefaults.exclude, 'pruebas/**'] },
   clearScreen: false,
   envPrefix: ['VITE_', 'TAURI_ENV_'],
   server: {

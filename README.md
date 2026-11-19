@@ -65,6 +65,14 @@ Corre `supabase/tests/aislamiento_test.sql` (pgTAP) y `onboarding_test.sql` (132
 - `obtener_carta` no expone `costo`; `crear_pedido_qr` usa precios de la base, abre sesión, marca la mesa ocupada y aplica el anti-spam;
 - un restaurante suspendido (`activo = false`) queda bloqueado, incluida su carta QR.
 
+Además, las mismas reglas se atacan **por la API real**, como lo haría alguien con una cuenta propia (login de verdad, JWT, PostgREST y RPC):
+
+```powershell
+npm run test:rls
+```
+
+Corre `pruebas/rls/aislamiento.test.ts` (39 pruebas) contra Supabase **local**: crea un segundo restaurante con su admin, intenta leer, editar, crear y borrar datos del restaurante de demo, prueba roles, usuarios desactivados, restaurante suspendido y el acceso anónimo del QR, y al final borra lo que creó. Si un ataque llegara a funcionar, la prueba falla y deshace el daño. Se niega a correr contra cualquier cosa que no sea `127.0.0.1`/`localhost`.
+
 ---
 
 ## 2. Producción (proyecto Supabase en la nube)

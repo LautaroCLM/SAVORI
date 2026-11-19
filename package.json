@@ -17,6 +17,7 @@
     "db:types": "supabase gen types typescript > src/types/database.ts",
     "test": "vitest run",
     "test:watch": "vitest",
+    "test:rls": "vitest run --config vitest.rls.config.ts",
     "build:tauri": "tsc -b && vite build --mode tauri",
     "tauri": "tauri",
     "tauri:dev": "tauri dev",
